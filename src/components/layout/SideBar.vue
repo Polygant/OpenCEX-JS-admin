@@ -25,7 +25,7 @@
     <v-list>
       <template v-for="item in navigation">
         <template v-if="item.icon">
-          <v-list-item :to="`/page/${item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
+          <v-list-item :to="`/admin/page/${item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
           </v-list-item>
         </template>
         <template>

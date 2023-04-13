@@ -4,17 +4,17 @@ import LoginPageVue from '../pages/LoginPage.vue'
 import ContentPage from '../pages/ContentPage.vue'
 const routes = [
   {
-    path: '/',
+    path: '/admin/',
     name: 'Home',
     component: Home
   },
   {
-    path: '/login',
+    path: '/admin/login',
     name: 'Login',
     component: LoginPageVue
   },
   {
-    path: '/page/:page',
+    path: '/admin/page/:page',
     name: 'Admin',
     component: ContentPage
   },
