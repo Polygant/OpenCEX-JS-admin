@@ -36,7 +36,7 @@
   </v-navigation-drawer>
 </template>
 <script setup>
-import axios from '@/plugins/axios';
+import axios from '../../plugins/axios';
 import { onBeforeMount, ref } from 'vue'
 
 const apiKey = import.meta.env.VITE_API_KEY

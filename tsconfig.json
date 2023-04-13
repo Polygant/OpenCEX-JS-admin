@@ -10,19 +10,13 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
+    "noEmit": true,
     "paths": {
       "~/*": ["./src"],
-      "@/*": ["./*"]
+      "@/*": ["./src"]
     },
     "allowJs": true
   },
-  "include": [
-    "src/**/*.ts",
-    // "src/**/*.js",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/components/modal/index.js"
-  ],
-  "exclude": ["node_modules", "src/**/*.spec.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules"]
 }

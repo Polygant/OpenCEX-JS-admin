@@ -32,7 +32,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import axios from '@/plugins/axios';
+import axios from '../../src/plugins/axios';
 import { watch, ref, onBeforeMount } from 'vue'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 

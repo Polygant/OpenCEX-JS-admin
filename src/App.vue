@@ -21,7 +21,7 @@ const pageName = ref("")
 watch(
   () => route.name,
   (newValue) => {
-    pageName.value = newValue
+    pageName.value = newValue ? newValue.toString() : "";
   }
 );
 
