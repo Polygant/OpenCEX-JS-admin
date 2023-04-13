@@ -27,14 +27,14 @@
 import { ref } from 'vue'
 
 import axios from 'axios'
-
+const apiKey = import.meta.env.VITE_API_KEY
 const user = ref("trade@polygant.net")
 const pass = ref("1234qwer")
 const code = ref("")
 
 const login = async () => {
   try {
-    const response = await axios.post('https://polyxdev.plgdev.com/apiadmin/login/', {
+    const response = await axios.post(`${apiKey}login/`, {
       username: user.value,
       password: pass.value,
       otp_token: code.value
