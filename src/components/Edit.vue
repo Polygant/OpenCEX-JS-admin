@@ -19,7 +19,7 @@ const props = defineProps({
   },
 })
 
-const values = ref({})
+const values: any = ref({})
 Object.keys(props.data.fields).forEach($ => {
   console.log(props.data.data[$])
   values.value[$] = props.data.data[$]
