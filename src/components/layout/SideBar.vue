@@ -40,9 +40,11 @@ import axios from '../../plugins/axios';
 import { onBeforeMount, ref } from 'vue'
 import { useNavStore } from '@/stores/nav'
 import initRouter from '@/router/'
+import localConfig from "@/local_config"
+
 const nav = useNavStore()
 
-const apiKey = import.meta.env.VITE_API_KEY
+const apiKey = localConfig.api
 
 const navigation = ref([])
 const resources = ref([])

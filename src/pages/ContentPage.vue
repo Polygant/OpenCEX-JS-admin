@@ -91,11 +91,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 import { useNavStore } from '@/stores/nav'
 import Show from '@/components/Show.vue'
 import Edit from '@/components/Edit.vue'
-
+import localConfig from "@/local_config"
 const nav = useNavStore()
 
-const apiKey = import.meta.env.VITE_API_KEY
-const baseUrl = import.meta.env.VITE_BASE_URL
+const apiKey = localConfig.api
+const baseUrl = localConfig.base
 
 const search = ref('')
 

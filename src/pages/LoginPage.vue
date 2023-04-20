@@ -27,7 +27,8 @@
 import { ref } from 'vue'
 
 import axios from 'axios'
-const apiKey = import.meta.env.VITE_API_KEY
+import localConfig from "@/local_config"
+const apiKey = localConfig.api
 const user = ref("trade@polygant.net")
 const pass = ref("1234qwer")
 const code = ref("")

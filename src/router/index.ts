@@ -2,7 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../pages/Index.vue'
 import LoginPageVue from '../pages/LoginPage.vue'
 import ContentPage from '../pages/ContentPage.vue'
-const baseUrl = import.meta.env.VITE_BASE_URL
+import localConfig from "../local_config"
+const baseUrl = localConfig.base
+
 const routes = [
   {
     path: `/${baseUrl}/`,
