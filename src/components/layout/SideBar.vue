@@ -25,7 +25,7 @@
     <v-list>
       <template v-for="item in navigation">
         <template v-if="item.icon">
-          <v-list-item :to="`/admin/page/${item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
+          <v-list-item :to="`/page/${item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
           </v-list-item>
         </template>
         <template>
@@ -38,21 +38,41 @@
 <script setup>
 import axios from '../../plugins/axios';
 import { onBeforeMount, ref } from 'vue'
+import { useNavStore } from '@/stores/nav'
+import initRouter from '@/router/'
+const nav = useNavStore()
 
 const apiKey = import.meta.env.VITE_API_KEY
 
 const navigation = ref([])
+const resources = ref([])
+
 const getNavigation = async () => {
   try {
-    const response = await axios.get(`${apiKey}navigation/`);
+    const response = await axios.get(`${apiKey}navigation/`)
     navigation.value = response.data
+    nav.setNavigation(response.data)
   } catch (error) {
-    console.error(error);
+    console.log(error?.response?.data?.type);
+    if(error?.response?.data?.type === "authentication_failed") {
+      initRouter.push({name: 'Login'})
+    }
+  }
+} 
+
+const getResources = async () => {
+  try {
+    const response = await axios.get(`${apiKey}resources/`);
+    resources.value = response.data
+    nav.setResources(response.data)
+  } catch (error) {
+    console.log(error.type);
   }
 } 
 
 onBeforeMount(() => {
   getNavigation()
+  getResources()
 })
 </script>
 
