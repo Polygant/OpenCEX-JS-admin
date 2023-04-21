@@ -5,6 +5,7 @@ import path from "path";
 export default defineConfig({
   plugins: [vue()],
   publicDir: path.resolve(__dirname, "./src/static"),
+  base: "/newadmin",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
