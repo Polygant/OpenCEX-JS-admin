@@ -28,6 +28,21 @@
   </v-card>
 </v-dialog>
 
+<v-dialog
+  v-model="deleteDialog"
+  width="auto"
+>
+  <v-card prepend-icon="mdi-home">
+    <div class="p-8">
+      Are you shure to delete this?
+      <v-card-actions class="flex-wrap">
+        <v-btn color="primary" block @click="deleteItem">Yes</v-btn><br/>
+        <v-btn color="primary" block @click="deleteDialog = false">Close</v-btn>
+      </v-card-actions>
+    </div>
+  </v-card>
+</v-dialog>
+
 <div class="flex justify-between p-8">
   <v-text-field
     v-model="search"
@@ -58,7 +73,7 @@
   >
   <template v-slot:item="{ item }">
     <tr>
-      <td v-for="i in headers" :class="{'checks' : i.key === 'control'}">      
+      <td v-for="i in headers" :class="{'checks' : i.key === 'control'}">   
         <div v-if="i.key === 'control'">
           <input type="checkbox" />
         </div>
@@ -72,7 +87,7 @@
           <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
           <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
           <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
-          <v-icon v-if="haveIcon('delete')" :color="'#E15241'" icon="mdi-delete"></v-icon>
+          <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
         </div>
         <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
       </td>
@@ -105,7 +120,10 @@ const param = ref(route.params.page)
 
 const infoDialog = ref(false)
 const editDialog = ref(false)
+const deleteDialog = ref(false)
 const showData = ref({})
+
+const deleteItemId = ref("")
 
 onBeforeMount(() => {
   getData(param.value)
@@ -175,6 +193,15 @@ const normFields = (arr) => {
 
 const haveIcon = (icon) => addition.value[0]?.actions?.includes(icon)
 
+const getActions = async () => {
+  try {
+    const response = await axios.get(`${apiKey}resources/`);
+    resources.value = response.data
+    nav.setResources(response.data)
+  } catch (error) {
+    console.log(error.type);
+  }
+} 
 
 const headers = ref([])
 const info = ref([])
@@ -182,14 +209,15 @@ const data = ref([])
 const addition = ref([])
 const getData = async (path) => { 
   let pathSepar = splitAndReplace(removeListSuffix(path))
-  addition.value = nav.getResources.filter($ => $.name === removeListSuffix(path))
+  await getActions()
+  addition.value = await nav.getResources.filter($ => $.name === removeListSuffix(path))  
   if(endsWithList(path)) 
     try {
       const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=0`);
       info.value = options.data
       data.value = response.data
-      headers.value = normFields(info.value.fields)      
+      headers.value = normFields(info.value.list_fields)      
     } catch (error) {
       console.error(error.type);
     }
@@ -201,6 +229,7 @@ const getDetailData = async (id) => {
     try {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
       showData.value = { 
+        list_fields: info.value.list_fields, 
         fields: info.value.fields, 
         data: response.data 
       }
@@ -215,7 +244,8 @@ const getEditData = async (id) => {
   if(endsWithList(param.value)) 
     try {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
-      showData.value = { 
+      showData.value = {
+        list_fields: info.value.list_fields, 
         fields: info.value.fields, 
         data: response.data 
       }
@@ -223,6 +253,23 @@ const getEditData = async (id) => {
     } catch (error) {
       console.error(error.type);
     }
+}
+
+const deleteItem = async () => {
+  let pathSepar = splitAndReplace(removeListSuffix(param.value))
+  if(endsWithList(param.value)) 
+    try {
+      await axios.delete(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${deleteItemId.value}/?`);
+      deleteDialog.value = false
+      location.reload()
+    } catch (error) {
+      console.error(error.type);
+    }
+}
+
+const deleteItemDialog = (id) => {
+  deleteItemId.value = id
+  deleteDialog.value = true
 }
 
 </script>
