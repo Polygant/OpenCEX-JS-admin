@@ -27,8 +27,8 @@
   <v-btn color="primary" block @click="save">Save</v-btn>
 </div>
 </template>
-<script setup lang="ts">
-import { PropType, onMounted, ref } from 'vue';
+<script setup>
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
@@ -36,12 +36,12 @@ import axios from '../plugins/axios'
 const apiKey = localConfig.api
 const props = defineProps({
   data: {
-    type: Object as PropType<any>,
+    type: Object,
     required: true,
   },
 })
 
-const values: any = ref({})
+const values = ref({})
 const route = useRoute()
 const param = ref(route.params.page)
 

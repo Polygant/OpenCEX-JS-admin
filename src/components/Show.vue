@@ -10,12 +10,11 @@
   </div>
 </div>
 </template>
-<script setup lang="ts">
-import { PropType } from 'vue';
+<script setup>
 
 const props = defineProps({
   data: {
-    type: Object as PropType<any>,
+    type: Object,
     required: true,
   },
 })
