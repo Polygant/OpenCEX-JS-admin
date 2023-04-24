@@ -11,10 +11,7 @@
       ></v-checkbox>
     </template>
     <template v-else-if="props.data.list_fields[field].type === 'datetime'">
-      <VueDatePicker 
-        v-model="values[field]" 
-        text-input 
-        />
+      <v-date-picker v-model="values[field]"></v-date-picker>
     </template>
     <template v-else>
       <v-text-field 
