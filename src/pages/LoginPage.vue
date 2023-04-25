@@ -25,14 +25,14 @@
 
 <script setup>
 import { ref } from 'vue'
-
 import axios from 'axios'
 import localConfig from "@/local_config"
+import { useRouter } from 'vue-router'
 const apiKey = localConfig.api
 const user = ref("trade@polygant.net")
 const pass = ref("1234qwer")
 const code = ref("")
-
+const router = useRouter()
 const login = async () => {
   try {
     const response = await axios.post(`${apiKey}login/`, {
@@ -40,9 +40,9 @@ const login = async () => {
       password: pass.value,
       otp_token: code.value
       
-    });
-    console.log(response.data);
+    });    
     localStorage.setItem("jwt_token", response.data.access_token)
+    router.push({path: '/page/dashboard'})
   } catch (error) {
     console.error(error);
   }

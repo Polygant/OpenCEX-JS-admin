@@ -29,6 +29,21 @@
 </v-dialog>
 
 <v-dialog
+  v-model="createDialog"
+  width="auto"
+>
+  <v-card prepend-icon="mdi-plus">
+    <v-card-title class="text-h5">
+      Create
+    </v-card-title>
+    <Create :data="showData" />
+    <v-card-actions>
+      <v-btn color="primary" block @click="createDialog = false">Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+<v-dialog
   v-model="deleteDialog"
   width="auto"
 >
@@ -57,7 +72,7 @@
     <v-btn class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
       Add filter
     </v-btn>
-    <v-btn class="content-page__btn" prepend-icon="mdi-plus">
+    <v-btn class="content-page__btn" prepend-icon="mdi-plus" @click="getCreateData">
       Create
     </v-btn>
     <v-btn class="content-page__btn" prepend-icon="mdi-download">
@@ -69,7 +84,9 @@
   <v-data-table
     :headers="headers"
     :items="data.results"
-    :search="search"
+    :hide-default-header="true"
+    :hide-default-footer="true"
+    disable-pagination
   >
   <template v-slot:item="{ item }">
     <tr>
@@ -94,6 +111,12 @@
     </tr>
   </template>
   </v-data-table>
+  <div class="text-center">
+    <v-pagination
+      v-model="pageNum"
+      :length="pageCount"
+    ></v-pagination>
+  </div>
 </div>
 
 </template>
@@ -106,13 +129,29 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 import { useNavStore } from '@/stores/nav'
 import Show from '@/components/Show.vue'
 import Edit from '@/components/Edit.vue'
+import Create from '@/components/Create.vue'
 import localConfig from "@/local_config"
+import _ from 'lodash'
+
 const nav = useNavStore()
 
 const apiKey = localConfig.api
 const baseUrl = localConfig.base
 
 const search = ref('')
+const perPage = ref(10)
+
+const pagination = ref({
+  page: 2,
+  itemsPerPage: 12,
+  pageStart: 1,
+  pageStop: 30,
+  pageCount: 30,
+})
+
+
+const pageNum = ref(1)
+const pageCount = ref(1)
 
 const route = useRoute()
 const router = useRouter()
@@ -120,12 +159,16 @@ const param = ref(route.params.page)
 
 const infoDialog = ref(false)
 const editDialog = ref(false)
+const createDialog = ref(false)
 const deleteDialog = ref(false)
+
 const showData = ref({})
 
 const deleteItemId = ref("")
 
 onBeforeMount(() => {
+  pageNum.value = 1
+  pageCount.value = 1
   getData(param.value)
 }),
 
@@ -135,7 +178,11 @@ watch(
       param.value = newValue;
       getData(newValue)
   }
-);
+)
+watch(search, _.debounce((newVal) => {
+  searchStr(param.value, newVal)
+}, 1002))
+
 //////
 
 function splitAndReplace(str) {
@@ -207,6 +254,7 @@ const headers = ref([])
 const info = ref([])
 const data = ref([])
 const addition = ref([])
+
 const getData = async (path) => { 
   let pathSepar = splitAndReplace(removeListSuffix(path))
   await getActions()
@@ -214,14 +262,47 @@ const getData = async (path) => {
   if(endsWithList(path)) 
     try {
       const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
-      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=0`);
       info.value = options.data
+      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
       data.value = response.data
+      pageCount.value = response.data.count / 10
       headers.value = normFields(info.value.list_fields)      
     } catch (error) {
       console.error(error.type);
     }
-} 
+}
+
+watch(pageNum, (newVal) => {
+  getPaginateData(param.value)
+})
+
+const paginate = (val) => {
+  pagination.value = val
+  getPaginateData(param.value)
+}
+
+const getPaginateData = async (path) => { 
+  let pathSepar = splitAndReplace(removeListSuffix(path))
+  if(endsWithList(path)) 
+    try {
+      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}`);
+      data.value = response.data
+      pageCount.value = response.data.count / 10
+    } catch (error) {
+      console.error(error.type);
+    }
+}
+
+const searchStr = async (path, str) => {
+  let pathSepar = splitAndReplace(removeListSuffix(path))
+  if(endsWithList(path)) 
+    try {
+      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=0&search=${str}`);
+      data.value = response.data
+    } catch (error) {
+      console.error(error.type);
+    }
+}
 
 const getDetailData = async (id) => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
@@ -234,6 +315,20 @@ const getDetailData = async (id) => {
         data: response.data 
       }
       infoDialog.value = true
+    } catch (error) {
+      console.error(error.type);
+    }
+}
+
+const getCreateData = async () => {
+  let pathSepar = splitAndReplace(removeListSuffix(param.value))
+  if(endsWithList(param.value)) 
+    try {
+      showData.value = { 
+        list_fields: info.value.list_fields, 
+        fields: info.value.fields, 
+      }
+      createDialog.value = true
     } catch (error) {
       console.error(error.type);
     }
@@ -310,5 +405,8 @@ const deleteItemDialog = (id) => {
 }
 .content-page__btn {
   margin-left: 20px;
+}
+.v-data-table-footer {
+  display: none;
 }
 </style>
