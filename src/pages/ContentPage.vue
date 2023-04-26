@@ -299,6 +299,7 @@ const searchStr = async (path, str) => {
     try {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=0&search=${str}`);
       data.value = response.data
+      pageCount.value = response.data.count / 10
     } catch (error) {
       console.error(error.type);
     }

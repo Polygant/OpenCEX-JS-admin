@@ -8,6 +8,20 @@
           v-model="values[field]"
         ></v-checkbox>
       </template>
+      <template v-else-if="props.data.fields[field].type === 'choice'">
+        <label>{{ props.data.fields[field].attributes.label }}</label>
+        <v-select
+          item-title="text"
+          item-value="value"
+          :items="props.data.fields[field].attributes.choices"
+          :label="props.data.fields[field].attributes.label"
+          v-model="values[field]"
+        ></v-select>
+        <v-checkbox
+          :label="props.data.fields[field].attributes.label"
+          v-model="values[field]"
+        ></v-checkbox>
+      </template>
       <template v-else-if="props.data.fields[field].type === 'datetime'">
         <v-date-picker v-model="values[field]"></v-date-picker>
       </template>
