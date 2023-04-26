@@ -80,13 +80,17 @@
     </v-btn>
   </div>
 </div>
-<div class="content-page-table">  
+<div class="content-page-table">
+  <template v-if="!data.results || data.results.length === 0">
+    <div class="text-center">No data available</div>
+  </template>
   <v-data-table
+    v-else
     :headers="headers"
     :items="data.results"
     :hide-default-header="true"
     :hide-default-footer="true"
-    disable-pagination
+    disable-pagination    
   >
   <template v-slot:item="{ item }">
     <tr>
