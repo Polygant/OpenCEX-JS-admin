@@ -1103,6 +1103,11 @@ vue-axios@^3.5.2:
   resolved "https://registry.npmjs.org/vue-axios/-/vue-axios-3.5.2.tgz"
   integrity sha512-GP+dct7UlAWkl1qoP3ppw0z6jcSua5/IrMpjB5O8bh089iIiJ+hdxPYH2NPEpajlYgkW5EVMP95ttXWdas1O0g==
 
+vue-click-outside-element@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/vue-click-outside-element/-/vue-click-outside-element-3.1.2.tgz#63b15011b06ed053079eddd59953f53f570426c1"
+  integrity sha512-yIej7+kpQ7gIjup3L1KbdL/jUrBcrldnl7Fy0A76LgMeW9TJ6utAjmOC1IrlWbVpSu7hYfYIjqwSGDC3Evfazw==
+
 vue-demi@*:
   version "0.13.11"
   resolved "https://registry.npmjs.org/vue-demi/-/vue-demi-0.13.11.tgz"

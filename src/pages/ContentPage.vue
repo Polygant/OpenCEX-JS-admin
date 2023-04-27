@@ -67,38 +67,40 @@
     hide-details
     class="content-page__search"
   >
-  </v-text-field>
-  <div v-if="filterShow" class="filters-block">
-    <div v-for="filter in Object.keys(filters)" :key="filter">
-      <template v-if="filters[filter].type !== 'datetime'">
-        <label>{{ filters[filter].attributes.label }}</label>
-        <template v-if="filters[filter].type === 'integer'">
-          <v-text-field
-            type="number"
-            v-model="filters[filter].on"
-          ></v-text-field>
-        </template>      
-        <template v-else-if="filters[filter].type === 'choice'">
-          <v-select
-            item-title="text"
-            item-value="value"
-            v-model="filters[filter].on"
-            :items="filters[filter].attributes.choices"          
-          ></v-select>
-        </template>
-        <template v-else>
-          <v-text-field 
-            v-model="filters[filter].on"
-          ></v-text-field>
-        </template>
-      </template>
+  </v-text-field>   
+  <div class="flex">
+    <div v-click-outside-element="() => filterShow = false">
+      <div v-if="filterShow" class="filters-block">
+        <div v-for="filter in Object.keys(filters)" :key="filter">
+          <template v-if="filters[filter].type !== 'datetime'">
+            <label>{{ filters[filter].attributes.label }}</label>
+            <template v-if="filters[filter].type === 'integer'">
+              <v-text-field
+                type="number"
+                v-model="filters[filter].on"
+              ></v-text-field>
+            </template>      
+            <template v-else-if="filters[filter].type === 'choice'">
+              <v-select
+                item-title="text"
+                item-value="value"
+                v-model="filters[filter].on"
+                :items="filters[filter].attributes.choices"          
+              ></v-select>
+            </template>
+            <template v-else>
+              <v-text-field 
+                v-model="filters[filter].on"
+              ></v-text-field>
+            </template>
+          </template>
+        </div>
+        <v-btn color="primary" block @click="clearFilter">Clear filter</v-btn>
+      </div> 
+      <v-btn @click="() => filterShow = !filterShow" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
+        Add filter
+      </v-btn>
     </div>
-  </div>  
-  <div>
-    {{ filterStr }}
-    <v-btn @click="() => filterShow = !filterShow" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
-      Add filter
-    </v-btn>
     <v-btn class="content-page__btn" prepend-icon="mdi-plus" @click="getCreateData">
       Create
     </v-btn>
@@ -107,14 +109,17 @@
     </v-btn> -->
   </div>
 </div>
-<div class="flex">
-  <div v-for="item in Object.keys(headersCustom)" :key="item">
-    <v-checkbox
-      v-if="item !== 'controls' && item !== 'actions' "
-      :label="item"
-      v-model="headersCustom[item]"
-    ></v-checkbox>
+<div class="relative" v-click-outside-element="() => customizeFields = false">
+  <div class="customize-fields" v-if="customizeFields">
+    <div v-for="item in Object.keys(headersCustom)" :key="item" style="margin-bottom: -30px;">
+      <v-checkbox
+        v-if="item !== 'controls' && item !== 'actions' "
+        :label="item"
+        v-model="headersCustom[item]"
+      ></v-checkbox>
+    </div>
   </div>
+  <v-btn color="primary" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
 </div>
 <div class="content-page-table">
   <template v-if="!data.results || data.results.length === 0">
@@ -204,7 +209,7 @@ const deleteDialog = ref(false)
 const filterShow = ref(false)
 const showData = ref({})
 const deleteItemId = ref("")
-
+const customizeFields = ref(false)
 const headers = ref([])
 const headersCustom = ref({})
 const info = ref([])
@@ -226,8 +231,14 @@ watch(
   }  
 )
 watch(search, _.debounce((newVal) => {
-  searchStr(param.value, newVal)
+  getPaginateData(param.value)
 }, 1002))
+
+const clearFilter = () => {
+  Object.keys(filters.value).map($ => {
+    filters.value[$]['on'] = ""
+  })
+}
 
 const normFields = (arr) => {
   let res = []
@@ -277,7 +288,6 @@ const headerShow = computed(() => {
 const filterStr = computed(() => {
   let str = ""
   Object.keys(filters.value).map($ => {
-    console.log(filters.value[$])
     if(filters.value[$]?.on !== "" && filters.value[$]?.on !== undefined) {
       str += `&${$}=${filters.value[$]?.on}`
     }
@@ -324,19 +334,7 @@ const getPaginateData = async (path) => {
   let pathSepar = splitAndReplace(removeListSuffix(path))
   if(endsWithList(path)) 
     try {
-      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}`);
-      data.value = response.data
-      pageCount.value = response.data.count / 10
-    } catch (error) {
-      console.error(error.type);
-    }
-}
-
-const searchStr = async (path, str) => {
-  let pathSepar = splitAndReplace(removeListSuffix(path))
-  if(endsWithList(path)) 
-    try {
-      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=0&search=${str}`);
+      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}&search=${search.value}`);
       data.value = response.data
       pageCount.value = response.data.count / 10
     } catch (error) {
@@ -456,6 +454,16 @@ const deleteItemDialog = (id) => {
   right: 32px;
   top: 147px;
   width: 400px;
+  z-index: 2;
+  border: 1px solid #ccc;
+}
+.customize-fields {
+  position: absolute;
+  background: #FFF;
+  padding: 20px;
+  left: 32px;
+  top: 45px;
+  min-width: 200px;
   z-index: 2;
   border: 1px solid #ccc;
 }
