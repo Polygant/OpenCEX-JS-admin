@@ -80,13 +80,22 @@
     </v-btn>
   </div>
 </div>
+<div class="flex">
+  <div v-for="item in Object.keys(headersCustom)" :key="item">
+    <v-checkbox
+      v-if="item !== 'controls' && item !== 'actions' "
+      :label="item"
+      v-model="headersCustom[item]"
+    ></v-checkbox>
+  </div>
+</div>
 <div class="content-page-table">
   <template v-if="!data.results || data.results.length === 0">
     <div class="text-center">No data available</div>
   </template>
   <v-data-table
     v-else
-    :headers="headers"
+    :headers="headerShow"
     :items="data.results"
     :hide-default-header="true"
     :hide-default-footer="true"
@@ -94,7 +103,7 @@
   >
   <template v-slot:item="{ item }">
     <tr>
-      <td v-for="i in headers" :class="{'checks' : i.key === 'control'}">   
+      <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">   
         <div v-if="i.key === 'control'">
           <input type="checkbox" />
         </div>
@@ -128,7 +137,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import axios from '../../src/plugins/axios';
-import { watch, ref, onBeforeMount } from 'vue'
+import { watch, ref, onBeforeMount, computed } from 'vue'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { useNavStore } from '@/stores/nav'
 import Show from '@/components/Show.vue'
@@ -255,9 +264,14 @@ const getActions = async () => {
 } 
 
 const headers = ref([])
+const headersCustom = ref({})
 const info = ref([])
 const data = ref([])
 const addition = ref([])
+
+const headerShow = computed(() => {
+  return headers.value.filter($ => headersCustom.value[$.key])
+})
 
 const getData = async (path) => { 
   let pathSepar = splitAndReplace(removeListSuffix(path))
@@ -271,6 +285,11 @@ const getData = async (path) => {
       data.value = response.data
       pageCount.value = response.data.count / 10
       headers.value = normFields(info.value.list_fields)      
+      console.log(headers.value)
+      headers.value.map($ => {
+        headersCustom.value[$.key] = true
+      })
+      console.log(headersCustom.value)
     } catch (error) {
       console.error(error.type);
     }

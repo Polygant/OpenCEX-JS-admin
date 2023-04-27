@@ -1,6 +1,7 @@
 <template>
   <div class="detail-data">
     <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
+      {{ props.data.fields[field] }}
       <template v-if="props.data.fields[field].attributes.read_only === true"></template>
       <template v-else-if="props.data.fields[field].type === 'boolean'">
         <v-checkbox
@@ -17,10 +18,6 @@
           :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
         ></v-select>
-        <v-checkbox
-          :label="props.data.fields[field].attributes.label"
-          v-model="values[field]"
-        ></v-checkbox>
       </template>
       <template v-else-if="props.data.fields[field].type === 'datetime'">
         <v-date-picker v-model="values[field]"></v-date-picker>
