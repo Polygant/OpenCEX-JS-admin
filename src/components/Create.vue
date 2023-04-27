@@ -1,7 +1,6 @@
 <template>
   <div class="detail-data">
     <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
-      {{ props.data.fields[field] }}
       <template v-if="props.data.fields[field].attributes.read_only === true"></template>
       <template v-else-if="props.data.fields[field].type === 'boolean'">
         <v-checkbox
@@ -38,6 +37,7 @@
   import { useRoute } from 'vue-router'
   import localConfig from "@/local_config"
   import axios from '../plugins/axios'
+  import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
   
   const apiKey = localConfig.api
   const props = defineProps({
@@ -51,26 +51,6 @@
   const route = useRoute()
   const param = ref(route.params.page)
   
-  function splitAndReplace(str) {
-    const parts = str.split('_');
-    const lastPart = parts.pop();
-    const firstPart = parts.join('_');
-  
-    return [firstPart, lastPart];
-  }
-  
-  const endsWithList = (str) => {
-    return str.endsWith('_list');
-  }
-  const removeListSuffix = (str) => {
-    const suffix = '_list';
-  
-    if (str.endsWith(suffix)) {
-      return str.slice(0, -suffix.length);
-    }
-    
-    return str;
-  }
   const save = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 

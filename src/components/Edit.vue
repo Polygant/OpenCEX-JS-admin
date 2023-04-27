@@ -43,6 +43,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
+import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
 
 const apiKey = localConfig.api
 const props = defineProps({
@@ -56,26 +57,6 @@ const values = ref({})
 const route = useRoute()
 const param = ref(route.params.page)
 
-function splitAndReplace(str) {
-  const parts = str.split('_');
-  const lastPart = parts.pop();
-  const firstPart = parts.join('_');
-
-  return [firstPart, lastPart];
-}
-
-const endsWithList = (str) => {
-  return str.endsWith('_list');
-}
-const removeListSuffix = (str) => {
-  const suffix = '_list';
-
-  if (str.endsWith(suffix)) {
-    return str.slice(0, -suffix.length);
-  }
-  
-  return str;
-}
 const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 

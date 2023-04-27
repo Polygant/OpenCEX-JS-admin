@@ -68,16 +68,43 @@
     class="content-page__search"
   >
   </v-text-field>
+  <div v-if="filterShow" class="filters-block">
+    <div v-for="filter in Object.keys(filters)" :key="filter">
+      <template v-if="filters[filter].type !== 'datetime'">
+        <label>{{ filters[filter].attributes.label }}</label>
+        <template v-if="filters[filter].type === 'integer'">
+          <v-text-field
+            type="number"
+            v-model="filters[filter].on"
+          ></v-text-field>
+        </template>      
+        <template v-else-if="filters[filter].type === 'choice'">
+          <v-select
+            item-title="text"
+            item-value="value"
+            v-model="filters[filter].on"
+            :items="filters[filter].attributes.choices"          
+          ></v-select>
+        </template>
+        <template v-else>
+          <v-text-field 
+            v-model="filters[filter].on"
+          ></v-text-field>
+        </template>
+      </template>
+    </div>
+  </div>  
   <div>
-    <v-btn class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
+    {{ filterStr }}
+    <v-btn @click="() => filterShow = !filterShow" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
       Add filter
     </v-btn>
     <v-btn class="content-page__btn" prepend-icon="mdi-plus" @click="getCreateData">
       Create
     </v-btn>
-    <v-btn class="content-page__btn" prepend-icon="mdi-download">
+    <!-- <v-btn class="content-page__btn" prepend-icon="mdi-download">
       Export
-    </v-btn>
+    </v-btn> -->
   </div>
 </div>
 <div class="flex">
@@ -145,7 +172,7 @@ import Edit from '@/components/Edit.vue'
 import Create from '@/components/Create.vue'
 import localConfig from "@/local_config"
 import _ from 'lodash'
-
+import { splitAndReplace, endsWithList, removeListSuffix } from "@/plugins/helpers"
 const nav = useNavStore()
 
 const apiKey = localConfig.api
@@ -174,10 +201,16 @@ const infoDialog = ref(false)
 const editDialog = ref(false)
 const createDialog = ref(false)
 const deleteDialog = ref(false)
-
+const filterShow = ref(false)
 const showData = ref({})
-
 const deleteItemId = ref("")
+
+const headers = ref([])
+const headersCustom = ref({})
+const info = ref([])
+const data = ref([])
+const addition = ref([])
+const filters = ref({})
 
 onBeforeMount(() => {
   pageNum.value = 1
@@ -190,37 +223,11 @@ watch(
   (newValue) => {
       param.value = newValue;
       getData(newValue)
-  }
+  }  
 )
 watch(search, _.debounce((newVal) => {
   searchStr(param.value, newVal)
 }, 1002))
-
-//////
-
-function splitAndReplace(str) {
-  const parts = str.split('_');
-  const lastPart = parts.pop();
-  const firstPart = parts.join('_');
-
-  return [firstPart, lastPart];
-}
-
-
-const endsWithList = (str) => {
-  return str.endsWith('_list');
-}
-
-const removeListSuffix = (str) => {
-  const suffix = '_list';
-
-  if (str.endsWith(suffix)) {
-    return str.slice(0, -suffix.length);
-  }
-  
-  return str;
-}
-///////
 
 const normFields = (arr) => {
   let res = []
@@ -263,14 +270,23 @@ const getActions = async () => {
   }
 } 
 
-const headers = ref([])
-const headersCustom = ref({})
-const info = ref([])
-const data = ref([])
-const addition = ref([])
-
 const headerShow = computed(() => {
   return headers.value.filter($ => headersCustom.value[$.key])
+})
+
+const filterStr = computed(() => {
+  let str = ""
+  Object.keys(filters.value).map($ => {
+    console.log(filters.value[$])
+    if(filters.value[$]?.on !== "" && filters.value[$]?.on !== undefined) {
+      str += `&${$}=${filters.value[$]?.on}`
+    }
+  })
+  return str
+})
+
+watch(filterStr, () => {
+  getPaginateData(param.value)
 })
 
 const getData = async (path) => { 
@@ -281,15 +297,15 @@ const getData = async (path) => {
     try {
       const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
       info.value = options.data
+      filters.value = options.data.filters
+      Object.keys(filters.value).map($ => filters.value[$]['on'] = "")
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
       data.value = response.data
       pageCount.value = response.data.count / 10
       headers.value = normFields(info.value.list_fields)      
-      console.log(headers.value)
       headers.value.map($ => {
         headersCustom.value[$.key] = true
       })
-      console.log(headersCustom.value)
     } catch (error) {
       console.error(error.type);
     }
@@ -308,7 +324,7 @@ const getPaginateData = async (path) => {
   let pathSepar = splitAndReplace(removeListSuffix(path))
   if(endsWithList(path)) 
     try {
-      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}`);
+      const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}`);
       data.value = response.data
       pageCount.value = response.data.count / 10
     } catch (error) {
@@ -432,5 +448,15 @@ const deleteItemDialog = (id) => {
 }
 .v-data-table-footer {
   display: none;
+}
+.filters-block {
+  position: absolute;
+  background: #FFF;
+  padding: 20px;
+  right: 32px;
+  top: 147px;
+  width: 400px;
+  z-index: 2;
+  border: 1px solid #ccc;
 }
 </style>
