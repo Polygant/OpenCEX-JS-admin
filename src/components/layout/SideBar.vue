@@ -55,7 +55,7 @@ const getNavigation = async () => {
     navigation.value = response.data
     nav.setNavigation(response.data)
   } catch (error) {
-    if(error?.response?.data?.type === "authentication_failed" || error?.response?.code?.code === "token_not_valid") {
+    if(error?.response?.data?.type === "authentication_failed" || error?.response?.data?.code?.code === "token_not_valid") {
       initRouter.push({name: 'Login'})
     }
   }
