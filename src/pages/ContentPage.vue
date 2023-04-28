@@ -121,6 +121,11 @@
   </div>
   <v-btn color="primary" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
 </div>
+<div v-if="showActs" class="flex actions-line">
+  <div v-for="act in info.actions" class="mr-4">
+    <v-btn color="primary" class="inline-block ml-8" @click="doAct(act.url)">{{ act.name }}</v-btn>
+  </div>  
+</div>
 <div class="content-page-table">
   <template v-if="!data.results || data.results.length === 0">
     <div class="text-center">No data available</div>
@@ -137,7 +142,7 @@
     <tr>
       <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">   
         <div v-if="i.key === 'control'">
-          <input type="checkbox" />
+          <input type="checkbox" v-model="selected[item.columns['id']]" />
         </div>
         <div v-else-if="i.key === 'user'" class="content-page-table__cell">
           {{ item.columns[i.key]?.value  }}
@@ -217,11 +222,13 @@ const data = ref([])
 const addition = ref([])
 const filters = ref({})
 
+const selected = ref({})
+
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
   getData(param.value)
-}),
+})
 
 watch(
   () => route.params.page,
@@ -239,6 +246,29 @@ const clearFilter = () => {
     filters.value[$]['on'] = ""
   })
 }
+
+const doAct = async (url) => {
+  let ids = []
+  Object.keys(selected.value).map($ => {
+    if(selected.value[$]) ids.push(parseInt($))
+  })
+  try {
+    await axios.post(`${url}`, {
+      ids: ids,
+    });
+    selected.value = {}
+  } catch (error) {
+    console.log(error.type);
+  }
+}
+
+const showActs = computed(() => {
+  let sh = false
+  Object.keys(selected.value).map($ => {
+    if(selected.value[$]) sh = true
+  })
+  return sh
+})
 
 const normFields = (arr) => {
   let res = []
@@ -466,5 +496,10 @@ const deleteItemDialog = (id) => {
   min-width: 200px;
   z-index: 2;
   border: 1px solid #ccc;
+}
+.actions-line {
+  padding: 20px;
+  background: #CCC;
+  margin-top: 10px;
 }
 </style>
