@@ -72,7 +72,6 @@
     </div>
   </v-card>
 </v-dialog>
-
 <div class="flex justify-between p-8">
   <v-text-field
     v-model="search"
@@ -165,6 +164,9 @@
         <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
           <img width="100" :src="item.columns[i.key]" />
         </div>
+        <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
+          {{ getChooseValue(i.key, item.columns[i.key]) }}
+        </template>
         <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
           <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
           <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
@@ -172,6 +174,36 @@
           <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
         </div>
         <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
+        <div class="hidden">
+          <template v-if="info.list_fields[i.key]?.attributes.read_only !== true && i.key !== 'control' && i.key !== 'actions' && info.list_fields[i.key]?.type !== 'choice'">
+            <template v-if="info.list_fields[i.key]?.type === 'boolean'">
+              <v-checkbox
+                @input="(event) => selectEditField(event, i.key)"
+                :data-field="i.key"
+              ></v-checkbox>
+            </template>           
+            <!-- <template v-else-if="info.list_fields[i.key]?.type === 'choice'">              
+              <v-select
+                item-title="text"
+                item-value="value"
+                :items="info.list_fields[i.key]?.attributes.choices"
+                :label="info.list_fields[i.key]?.attributes.label"
+                @update:modelValue="(event) => selectEditField(event, i.key)"
+                :value="item.columns[i.key]"
+              ></v-select>
+            </template> -->
+            <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
+              <v-date-picker v-model="values[field]"></v-date-picker>
+            </template>
+            <template v-else>
+              <v-text-field 
+                :hint="info.list_fields[i.key]?.attributes.hint"
+                @input="(event) => selectEditField(event, i.key)"
+                :value="item.columns[i.key]"
+              ></v-text-field>
+            </template>
+          </template>
+        </div>
       </td>
     </tr>
   </template>
@@ -206,15 +238,6 @@ const baseUrl = localConfig.base
 const search = ref('')
 const perPage = ref(10)
 
-const pagination = ref({
-  page: 2,
-  itemsPerPage: 12,
-  pageStart: 1,
-  pageStop: 30,
-  pageCount: 30,
-})
-
-
 const pageNum = ref(1)
 const pageCount = ref(1)
 
@@ -239,7 +262,7 @@ const addition = ref([])
 const filters = ref({})
 const act = ref({})
 const selected = ref({})
-
+const lifeEdit = ref({})
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
@@ -249,6 +272,7 @@ onBeforeMount(() => {
 watch(
   () => route.params.page,
   (newValue) => {
+      selected.value = {}
       param.value = newValue;
       getData(newValue)
   }  
@@ -256,6 +280,15 @@ watch(
 watch(search, _.debounce((newVal) => {
   getPaginateData(param.value)
 }, 1002))
+
+const selectEditField = (target, elem) => {
+  console.log(target, elem)
+}
+
+const getChooseValue = (field, value) => {
+  let s = info.value.list_fields[field]?.attributes?.choices?.filter(i => i.value === value)?.[0]?.["text"]
+  return s
+}
 
 const clearFilter = () => {
   Object.keys(filters.value).map($ => {
@@ -278,10 +311,12 @@ const submitAct = async () => {
       ids: ids,
     });
     selected.value = {}
+    getPaginateData(param.value)
+    actDialog.value = false
   } catch (error) {
     console.log(error.type);
+    actDialog.value = false
   }
-  actDialog.value = false
 }
 
 const showActs = computed(() => {
@@ -376,11 +411,6 @@ const getData = async (path) => {
 watch(pageNum, (newVal) => {
   getPaginateData(param.value)
 })
-
-const paginate = (val) => {
-  pagination.value = val
-  getPaginateData(param.value)
-}
 
 const getPaginateData = async (path) => { 
   let pathSepar = splitAndReplace(removeListSuffix(path))

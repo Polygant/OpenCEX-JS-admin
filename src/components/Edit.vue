@@ -19,10 +19,6 @@
         :label="props.data.list_fields[field].attributes.label"
         v-model="values[field]"
       ></v-select>
-      <v-checkbox
-        :label="props.data.list_fields[field].attributes.label"
-        v-model="values[field]"
-      ></v-checkbox>
     </template>
     <template v-else-if="props.data.list_fields[field].type === 'datetime'">
       <v-date-picker v-model="values[field]"></v-date-picker>
