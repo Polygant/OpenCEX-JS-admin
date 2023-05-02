@@ -44,6 +44,21 @@
 </v-dialog>
 
 <v-dialog
+  v-model="actDialog"
+  width="auto"
+>
+  <v-card>
+    <div class="p-8">
+      Do {{  act.name }} ?
+    </div>
+    <v-card-actions class="flex-wrap">
+      <v-btn color="primary" block @click="submitAct()">Do</v-btn>
+      <v-btn color="primary" block @click="actDialog = false">Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+<v-dialog
   v-model="deleteDialog"
   width="auto"
 >
@@ -123,7 +138,7 @@
 </div>
 <div v-if="showActs" class="flex actions-line">
   <div v-for="act in info.actions" class="mr-4">
-    <v-btn color="primary" class="inline-block ml-8" @click="doAct(act.url)">{{ act.name }}</v-btn>
+    <v-btn color="primary" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
   </div>  
 </div>
 <div class="content-page-table">
@@ -211,6 +226,7 @@ const infoDialog = ref(false)
 const editDialog = ref(false)
 const createDialog = ref(false)
 const deleteDialog = ref(false)
+const actDialog = ref(false)
 const filterShow = ref(false)
 const showData = ref({})
 const deleteItemId = ref("")
@@ -221,7 +237,7 @@ const info = ref([])
 const data = ref([])
 const addition = ref([])
 const filters = ref({})
-
+const act = ref({})
 const selected = ref({})
 
 onBeforeMount(() => {
@@ -247,19 +263,25 @@ const clearFilter = () => {
   })
 }
 
-const doAct = async (url) => {
+const doAct = async (actObj) => {
+  act.value = actObj
+  actDialog.value = true
+}
+
+const submitAct = async () => {
   let ids = []
   Object.keys(selected.value).map($ => {
     if(selected.value[$]) ids.push(parseInt($))
   })
   try {
-    await axios.post(`${url}`, {
+    await axios.post(`${act.value.url}`, {
       ids: ids,
     });
     selected.value = {}
   } catch (error) {
     console.log(error.type);
   }
+  actDialog.value = false
 }
 
 const showActs = computed(() => {
