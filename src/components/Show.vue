@@ -18,6 +18,12 @@ const props = defineProps({
     required: true,
   },
 })
+
+const getChooseValue = (field, value) => {
+  let s = props.data.list_fields[field]?.attributes?.choices?.filter(i => i.value === value)?.[0]?.["text"]
+  return s
+}
+
 </script>
 
 <style scoped>

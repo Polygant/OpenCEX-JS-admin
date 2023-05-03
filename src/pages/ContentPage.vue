@@ -125,11 +125,11 @@
 </div>
 <div class="relative" v-click-outside-element="() => customizeFields = false">
   <div class="customize-fields" v-if="customizeFields">
-    <div v-for="item in Object.keys(headersCustom)" :key="item" style="margin-bottom: -30px;">
+    <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
       <v-checkbox
         v-if="item !== 'controls' && item !== 'actions' "
         :label="item"
-        v-model="headersCustom[item]"
+        v-model="headersCustom[param][item]"
       ></v-checkbox>
     </div>
   </div>
@@ -154,16 +154,19 @@
   >
   <template v-slot:item="{ item }">
     <tr>
-      <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">   
+      <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">
         <div v-if="i.key === 'control'">
           <input type="checkbox" v-model="selected[item.columns['id']]" />
         </div>
-        <div v-else-if="i.key === 'user'" class="content-page-table__cell">
+        <div v-else-if="i.key === 'user' && typeof item.columns[i.key] === 'object'" class="content-page-table__cell">
           {{ item.columns[i.key]?.value  }}
         </div>
         <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
           <img width="100" :src="item.columns[i.key]" />
         </div>
+        <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
+          {{ moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') }}
+        </template>
         <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
           {{ getChooseValue(i.key, item.columns[i.key]) }}
         </template>
@@ -175,7 +178,7 @@
         </div>
         <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
         <div class="hidden">
-          <template v-if="info.list_fields[i.key]?.attributes.read_only !== true && i.key !== 'control' && i.key !== 'actions' && info.list_fields[i.key]?.type !== 'choice'">
+          <template v-if="info.list_fields[i.key]?.attributes.read_only !== true && info.list_fields[i.key]?.type !== 'datetime' && i.key !== 'control' && i.key !== 'actions' && info.list_fields[i.key]?.type !== 'choice'">
             <template v-if="info.list_fields[i.key]?.type === 'boolean'">
               <v-checkbox
                 @input="(event) => selectEditField(event, i.key)"
@@ -192,9 +195,6 @@
                 :value="item.columns[i.key]"
               ></v-select>
             </template> -->
-            <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-              <v-date-picker v-model="values[field]"></v-date-picker>
-            </template>
             <template v-else>
               <v-text-field 
                 :hint="info.list_fields[i.key]?.attributes.hint"
@@ -230,6 +230,8 @@ import Create from '@/components/Create.vue'
 import localConfig from "@/local_config"
 import _ from 'lodash'
 import { splitAndReplace, endsWithList, removeListSuffix } from "@/plugins/helpers"
+import moment from 'moment'
+
 const nav = useNavStore()
 
 const apiKey = localConfig.api
@@ -263,6 +265,7 @@ const filters = ref({})
 const act = ref({})
 const selected = ref({})
 const lifeEdit = ref({})
+
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
@@ -369,7 +372,8 @@ const getActions = async () => {
 } 
 
 const headerShow = computed(() => {
-  return headers.value.filter($ => headersCustom.value[$.key])
+  localStorage.setItem('customize', JSON.stringify(headersCustom.value))
+  return headers.value.filter($ => headersCustom.value?.[param.value]?.[$.key])
 })
 
 const filterStr = computed(() => {
@@ -399,10 +403,35 @@ const getData = async (path) => {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
       data.value = response.data
       pageCount.value = response.data.count / 10
-      headers.value = normFields(info.value.list_fields)      
-      headers.value.map($ => {
-        headersCustom.value[$.key] = true
-      })
+      headers.value = normFields(info.value.list_fields)
+      const customizeFromString = localStorage.getItem('customize')
+      if(customizeFromString.length > 3) {
+        const customizeFrom = JSON.parse(customizeFromString)
+        if(Object.keys(customizeFrom).length === 0) {
+          headersCustom.value[param.value] = {}
+          headers.value.map($ => {
+            headersCustom.value[param.value][$.key] = true
+          })
+        } else {
+          if(!customizeFrom[param.value] || Object.keys(customizeFrom?.[param.value]).length === 0) {
+            headersCustom.value[param.value] = {}
+            headers.value.map($ => {
+              headersCustom.value[param.value][$.key] = true
+            })
+            localStorage.setItem('customize', JSON.stringify(headersCustom.value))
+          } else {
+            headersCustom.value = customizeFrom
+          }
+        }
+      } else {
+        headersCustom.value[param.value] = {}
+        headers.value.map($ => {
+          headersCustom.value[param.value][$.key] = true
+        })
+        localStorage.setItem('customize', JSON.stringify(headersCustom.value))
+      }
+      
+      console.log(headers.value)
     } catch (error) {
       console.error(error.type);
     }
