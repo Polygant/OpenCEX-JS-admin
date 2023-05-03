@@ -59,6 +59,50 @@
 </v-dialog>
 
 <v-dialog
+  v-model="actGlobalDialog"
+  width="auto"
+>
+  <v-card>
+    <div class="p-8">
+      Do {{  actGlobal.name }} ?
+      {{ actGlobalFields }}
+      <div v-for="field in actGlobal.fields" :key="field.name">
+        <div class="flex" v-if="field.type === 'integer'">
+          <v-text-field
+            type="number"
+            v-model="actGlobalFields[field.name]"
+          ></v-text-field>
+        </div>      
+        <!-- <div class="flex" v-else-if="filters[filter].type === 'choice'">
+          <v-select
+            item-title="text"
+            item-value="value"
+            v-model="actGlobalFields[field]"
+            :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
+          ></v-select>
+        </div> -->
+        <div class="flex" v-else-if="field.type === 'boolean'">
+          <v-switch
+            v-model="actGlobalFields[field.name]"
+            hide-details
+            inset
+          ></v-switch>
+        </div>
+        <div class="flex" v-else>
+          <v-text-field 
+            v-model="actGlobalFields[field.name]"
+          ></v-text-field>
+        </div>
+      </div>
+    </div>
+    <v-card-actions class="flex-wrap">
+      <v-btn color="primary" block @click="submitGlobalAct()">Do</v-btn>
+      <v-btn color="primary" block @click="actGlobalDialog = false">Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+<v-dialog
   v-model="deleteDialog"
   width="auto"
 >
@@ -147,8 +191,11 @@
   </div>
   <v-btn color="primary" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
 </div>
-<div v-if="showActs" class="flex actions-line">
-  <div v-for="act in [...info.actions, ...info.global_actions]" class="mr-4">
+<div class="flex actions-line">
+  <div v-for="act in info.global_actions" class="mr-4">
+    <v-btn color="primary" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
+  </div> 
+  <div v-for="act in info.actions" class="mr-4">
     <v-btn color="primary" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
   </div>  
 </div>
@@ -264,6 +311,8 @@ const editDialog = ref(false)
 const createDialog = ref(false)
 const deleteDialog = ref(false)
 const actDialog = ref(false)
+const actGlobalDialog = ref(false)
+const actGlobalFields = ref({})
 const filterShow = ref(false)
 const showData = ref({})
 const deleteItemId = ref("")
@@ -275,6 +324,7 @@ const data = ref([])
 const addition = ref([])
 const filters = ref({})
 const act = ref({})
+const actGlobal = ref({})
 const selected = ref({})
 const lifeEdit = ref({})
 
@@ -316,6 +366,16 @@ const doAct = async (actObj) => {
   actDialog.value = true
 }
 
+const doGlobalAct = async (actObj) => {
+  actGlobal.value = actObj
+  actGlobal.value.fields.map($ => {
+    console.log($)
+    actGlobalFields.value[$.name] = ""
+  })
+  console.log(actGlobalFields.value)
+  actGlobalDialog.value = true
+}
+
 const submitAct = async () => {
   let ids = []
   Object.keys(selected.value).map($ => {
@@ -331,6 +391,18 @@ const submitAct = async () => {
   } catch (error) {
     console.log(error.type);
     actDialog.value = false
+  }
+}
+
+const submitGlobalAct = async () => {
+  try {
+    await axios.post(`${actGlobal.value.url}`, actGlobalFields.value);
+    selected.value = {}
+    getPaginateData(param.value)
+    actGlobalDialog.value = false
+  } catch (error) {
+    console.log(error.type);
+    actGlobalDialog.value = false
   }
 }
 
