@@ -88,25 +88,37 @@
         <div v-for="filter in Object.keys(filters)" :key="filter">
           <template v-if="filters[filter].type !== 'datetime'">
             <label>{{ filters[filter].attributes.label }}</label>
-            <template v-if="filters[filter].type === 'integer'">
+            <div class="flex" v-if="filters[filter].type === 'integer'">
               <v-text-field
                 type="number"
                 v-model="filters[filter].on"
               ></v-text-field>
-            </template>      
-            <template v-else-if="filters[filter].type === 'choice'">
+              <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+            </div>      
+            <div class="flex" v-else-if="filters[filter].type === 'choice'">
               <v-select
                 item-title="text"
                 item-value="value"
                 v-model="filters[filter].on"
-                :items="filters[filter].attributes.choices"          
+                :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
               ></v-select>
-            </template>
-            <template v-else>
+              <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+            </div>
+            <div class="flex" v-else-if="filters[filter].type === 'boolean'">
+              <v-switch
+                v-model="filters[filter].on"
+                hide-details
+                inset
+              ></v-switch>
+              <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+            </div>
+            <div class="flex" v-else>
+              {{ filters[filter].type }}
               <v-text-field 
                 v-model="filters[filter].on"
               ></v-text-field>
-            </template>
+              <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+            </div>
           </template>
         </div>
         <v-btn color="primary" block @click="clearFilter">Clear filter</v-btn>
