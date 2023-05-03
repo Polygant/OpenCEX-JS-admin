@@ -148,7 +148,7 @@
   <v-btn color="primary" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
 </div>
 <div v-if="showActs" class="flex actions-line">
-  <div v-for="act in info.actions" class="mr-4">
+  <div v-for="act in [...info.actions, ...info.global_actions]" class="mr-4">
     <v-btn color="primary" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
   </div>  
 </div>
