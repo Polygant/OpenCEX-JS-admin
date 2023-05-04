@@ -120,7 +120,7 @@
   <Dashboard />
 </div>
 <template v-else >
-  <div class="grid grid-cols-2 gap-8" style="align-items: center">
+  <div class="grid grid-cols-2 gap-8" style="align-items: center; padding-left: 20px;">
     <div class="flex">
       <v-text-field
         v-model="search"
