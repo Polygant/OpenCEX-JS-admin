@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.v-table__wrapper tr th {
+    background: #590DE5 !important;
+    color: #FFF !important;
+}
+.v-table__wrapper tr td {
+    font-size: 12px !important;
+}

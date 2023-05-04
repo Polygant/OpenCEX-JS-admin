@@ -6,7 +6,7 @@
         Latest Topups
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/topups/'" />
+        <TableBlock :path="'dashboard/topups/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 		<v-card>
@@ -14,7 +14,7 @@
         Latest Withdrawals
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/withdrawals/'" />
+        <TableBlock :path="'dashboard/withdrawals/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 	</div>
@@ -24,7 +24,7 @@
 				Trading and Withdrawals Fee
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/tradefee/'" />
+        <TableBlock :path="'dashboard/tradefee/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 		<v-card>
@@ -32,7 +32,7 @@
         Launchpad Fee
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/launchpadfee/'" />
+        <TableBlock :path="'dashboard/launchpadfee/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 		<div>
@@ -41,7 +41,7 @@
 					Latest Withdrawals
 				</template>
 				<template v-slot:text>
-					<TableBlock :path="'dashboard/commonusersstats/'" />
+					<TableBlock :path="'dashboard/commonusersstats/'" pagin="?limit=10&offset=0" />
 				</template>
 			</v-card>
 			<v-card>
@@ -49,7 +49,7 @@
 					Users Stats
 				</template>
 				<template v-slot:text>
-					<TableBlock :path="'dashboard/launchpadunlocksstats/'" />
+					<TableBlock :path="'dashboard/launchpadunlocksstats/'" pagin="?limit=10&offset=0" />
 				</template>
 			</v-card>
 		</div>
@@ -60,7 +60,7 @@
         InOuts Stats
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/commoninouts/'" />
+        <TableBlock :path="'dashboard/commoninouts/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 		<v-card>
@@ -68,7 +68,7 @@
         Trade Volumes
       </template>
       <template v-slot:text>
-        <TableBlock :path="'dashboard/tradevolume/'" />
+        <TableBlock :path="'dashboard/tradevolume/'" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
 	</div>

@@ -29,7 +29,7 @@
         ></v-text-field>
       </template>
     </div>
-    <v-btn color="primary" block @click="save">Save</v-btn>
+    <v-btn color="primary" variant="tonal" block @click="save">Save</v-btn>
   </div>
   </template>
   <script setup>

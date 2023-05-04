@@ -17,7 +17,7 @@
           label="Code"
         ></v-text-field>
 
-        <v-btn block class="mt-2" @click="login()">Submit</v-btn>
+        <v-btn block class="mt-2" variant="tonal" @click="login()">Submit</v-btn>
       </v-form>
     </v-sheet>
   </div>

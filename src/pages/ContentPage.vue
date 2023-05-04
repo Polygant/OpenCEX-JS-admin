@@ -11,7 +11,7 @@
   <v-card prepend-icon="mdi-home">
     <Show :data="showData" />
     <v-card-actions>
-      <v-btn color="primary" block @click="infoDialog = false">Close</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="infoDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -21,9 +21,9 @@
   width="auto"
 >
   <v-card prepend-icon="mdi-home">
-    <Edit :data="showData" />
+    <Edit :data="showData" :type="param" />
     <v-card-actions>
-      <v-btn color="primary" block @click="editDialog = false">Close</v-btn>
+      <v-btn color="primary" variant="tonal" @click="editDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -38,7 +38,7 @@
     </v-card-title>
     <Create :data="showData" />
     <v-card-actions>
-      <v-btn color="primary" block @click="createDialog = false">Close</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="createDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -52,8 +52,8 @@
       Do {{  act.name }} ?
     </div>
     <v-card-actions class="flex-wrap">
-      <v-btn color="primary" block @click="submitAct()">Do</v-btn>
-      <v-btn color="primary" block @click="actDialog = false">Close</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="submitAct()">Do</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="actDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -96,8 +96,8 @@
       </div>
     </div>
     <v-card-actions class="flex-wrap">
-      <v-btn color="primary" block @click="submitGlobalAct()">Do</v-btn>
-      <v-btn color="primary" block @click="actGlobalDialog = false">Close</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="submitGlobalAct()">Do</v-btn>
+      <v-btn color="primary" block variant="tonal" @click="actGlobalDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -110,8 +110,8 @@
     <div class="p-8">
       Are you shure to delete this?
       <v-card-actions class="flex-wrap">
-        <v-btn color="primary" block @click="deleteItem">Yes</v-btn><br/>
-        <v-btn color="primary" block @click="deleteDialog = false">Close</v-btn>
+        <v-btn color="primary" block variant="tonal" @click="deleteItem">Yes</v-btn><br/>
+        <v-btn color="primary" block variant="tonal" @click="deleteDialog = false">Close</v-btn>
       </v-card-actions>
     </div>
   </v-card>
@@ -120,87 +120,91 @@
   <Dashboard />
 </div>
 <template v-else >
-  <div class="flex justify-between p-8">
-    <v-text-field
-      v-model="search"
-      append-icon="mdi-magnify"
-      label="Search"
-      single-line
-      hide-details
-      class="content-page__search"
-    >
-    </v-text-field>   
+  <div class="grid grid-cols-2 gap-8" style="align-items: center">
     <div class="flex">
-      <div v-click-outside-element="() => filterShow = false">
-        <div v-if="filterShow" class="filters-block">
-          <div v-for="filter in Object.keys(filters)" :key="filter">
-            <template v-if="filters[filter].type !== 'datetime'">
-              <label>{{ filters[filter].attributes.label }}</label>
-              <div class="flex" v-if="filters[filter].type === 'integer'">
-                <v-text-field
-                  type="number"
-                  v-model="filters[filter].on"
-                ></v-text-field>
-                <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
-              </div>      
-              <div class="flex" v-else-if="filters[filter].type === 'choice'">
-                <v-select
-                  item-title="text"
-                  item-value="value"
-                  v-model="filters[filter].on"
-                  :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
-                ></v-select>
-                <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
-              </div>
-              <div class="flex" v-else-if="filters[filter].type === 'boolean'">
-                <v-switch
-                  v-model="filters[filter].on"
-                  hide-details
-                  inset
-                ></v-switch>
-                <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
-              </div>
-              <div class="flex" v-else>
-                {{ filters[filter].type }}
-                <v-text-field 
-                  v-model="filters[filter].on"
-                ></v-text-field>
-                <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
-              </div>
-            </template>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+        class="content-page__search"
+      >
+      </v-text-field>  
+      <div class="relative pt-3" v-click-outside-element="() => customizeFields = false">
+        <div class="customize-fields" v-if="customizeFields">
+          <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
+            <v-checkbox
+              v-if="item !== 'controls' && item !== 'actions' "
+              :label="item"
+              v-model="headersCustom[param][item]"
+            ></v-checkbox>
           </div>
-          <v-btn color="primary" block @click="clearFilter">Clear filter</v-btn>
-        </div> 
-        <v-btn @click="() => filterShow = !filterShow" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
-          Add filter
-        </v-btn>
-      </div>
-      <v-btn class="content-page__btn" prepend-icon="mdi-plus" @click="getCreateData">
-        Create
-      </v-btn>
-      <!-- <v-btn class="content-page__btn" prepend-icon="mdi-download">
-        Export
-      </v-btn> -->
+        </div>
+        <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
+      </div> 
     </div>
-  </div>
-  <div class="relative" v-click-outside-element="() => customizeFields = false">
-    <div class="customize-fields" v-if="customizeFields">
-      <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
-        <v-checkbox
-          v-if="item !== 'controls' && item !== 'actions' "
-          :label="item"
-          v-model="headersCustom[param][item]"
-        ></v-checkbox>
+    <div class="flex justify-between p-8">    
+      <div class="flex">
+        <div v-click-outside-element="() => filterShow = false">
+          <div v-if="filterShow" class="filters-block">
+            <div v-for="filter in Object.keys(filters)" :key="filter">
+              <template v-if="filters[filter].type !== 'datetime'">
+                <label>{{ filters[filter].attributes.label }}</label>
+                <div class="flex" v-if="filters[filter].type === 'integer'">
+                  <v-text-field
+                    type="number"
+                    v-model="filters[filter].on"
+                  ></v-text-field>
+                  <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+                </div>      
+                <div class="flex" v-else-if="filters[filter].type === 'choice'">
+                  <v-select
+                    item-title="text"
+                    item-value="value"
+                    v-model="filters[filter].on"
+                    :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
+                  ></v-select>
+                  <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+                </div>
+                <div class="flex" v-else-if="filters[filter].type === 'boolean'">
+                  <v-switch
+                    v-model="filters[filter].on"
+                    hide-details
+                    inset
+                  ></v-switch>
+                  <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+                </div>
+                <div class="flex" v-else>
+                  {{ filters[filter].type }}
+                  <v-text-field 
+                    v-model="filters[filter].on"
+                  ></v-text-field>
+                  <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
+                </div>
+              </template>
+            </div>
+            <v-btn color="primary" block variant="tonal" @click="clearFilter">Clear filter</v-btn>
+          </div> 
+          <v-btn @click="() => filterShow = !filterShow" variant="tonal" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
+            Add filter
+          </v-btn>
+          <v-btn class="content-page__btn" prepend-icon="mdi-plus" variant="tonal" @click="getCreateData">
+            Create
+          </v-btn>
+        </div>
+        <!-- <v-btn class="content-page__btn" variant="tonal" prepend-icon="mdi-download">
+          Export
+        </v-btn> -->
       </div>
-    </div>
-    <v-btn color="primary" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
+    </div>  
   </div>
   <div class="flex actions-line">
     <div v-for="act in info.global_actions" class="mr-4">
-      <v-btn color="primary" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
+      <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
     </div> 
     <div v-for="act in info.actions" class="mr-4">
-      <v-btn color="primary" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
+      <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
     </div>  
   </div>
   <div class="content-page-table">

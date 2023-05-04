@@ -40,6 +40,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  pagin: {
+    type: String,
+    required: false
+  }
 })
 
 const apiKey = localConfig.api
@@ -76,7 +80,7 @@ const getData = async () => {
 	try {
 			const options = await axios.options(`${apiKey}${props.path}`);
 			info.value = options.data
-			const response = await axios.get(`${apiKey}${props.path}?limit=10&offset=0`);
+			const response = await axios.get(`${apiKey}${props.path}${props.pagin ? props.pagin : ''}`);
 			data.value = response.data
 			headers.value = normFields(info.value.list_fields)
 	} catch (error) {
