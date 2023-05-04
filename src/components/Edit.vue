@@ -1,6 +1,7 @@
 <template>
 <div v-if="props.type === 'auth_user_list'" class="p-5">
-  <v-btn class="mb-3" color="primary" variant="tonal" @click="openEditBlock = true">Edit</v-btn>
+  <v-btn class="mb-3 mr-2" color="primary" variant="tonal" @click="() => { openEditBlock = true; openEditCoreBlock = false; }">Edit Main Profile</v-btn>
+  <v-btn class="mb-3" color="primary" variant="tonal" @click="() => { openEditBlock = false; openEditCoreBlock = true; }">Edit Full Profile</v-btn>
   <div v-if="openEditBlock">
     <div class="detail-data">
       <div v-for="field in Object.keys(props.data.list_fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
@@ -40,6 +41,45 @@
       <v-btn color="primary" variant="tonal" @click="openEditBlock = false">Close</v-btn>
     </div>
   </div>
+  <div v-if="openEditCoreBlock">
+    <div class="detail-data">
+      <div v-for="field in Object.keys(info.list_fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
+        <template v-if="info.list_fields[field].attributes.read_only === true">
+         
+        </template>
+        <template v-else-if="info.list_fields[field].type === 'boolean'">
+          <v-checkbox
+            :label="info.list_fields[field].attributes.label"
+            v-model="valuesCore[field]"
+          ></v-checkbox>
+        </template>
+        <template v-else-if="info.list_fields[field].type === 'choice'">
+          <label>{{ info.list_fields[field].attributes.label }}</label>
+          <v-select
+            item-title="text"
+            item-value="value"
+            :items="info.list_fields[field].attributes.choices"
+            :label="info.list_fields[field].attributes.label"
+            v-model="valuesCore[field]"
+          ></v-select>
+        </template>
+        <template v-else-if="info.list_fields[field].type === 'datetime'">
+          <v-date-picker v-model="valuesCore[field]"></v-date-picker>
+        </template>
+        <template v-else>
+          <v-text-field 
+            :label="info.list_fields[field].attributes.label"
+            v-model="valuesCore[field]"
+            :hint="info.list_fields[field].attributes.hint"
+          ></v-text-field>
+        </template>
+      </div>
+      <v-btn color="primary" block @click="saveCore" variant="tonal">Save</v-btn>
+    </div>
+    <div class="flex justify-center pb-6">
+      <v-btn color="primary" variant="tonal" @click="openEditCoreBlock = false">Close</v-btn>
+    </div>
+  </div>
   <div class="grid grid-cols-2 gap-8 mb-8">    
     <v-card>
       <template v-slot:title>
@@ -54,7 +94,7 @@
         Latest Topups
       </template>
       <template v-slot:text>
-        <TableBlock :path="`dashboard/topups/?user_id=${props.data.data.id}`" pagin="?limit=10&offset=0" />
+        <TableBlock :path="`dashboard_rest/topups/?user_id=${props.data.data.id}`" pagin="?limit=10&offset=0" />
       </template>
     </v-card>
   </div>
@@ -63,7 +103,7 @@
         Last withdrawals
       </template>
       <template v-slot:text>
-        <TableBlock :path="`dashboard/topups/?user_id=${props.data.data.id}`" pagin="?limit=10&offset=0" />
+        <TableBlock :path="`dashboard_rest/topups/?user_id=${props.data.data.id}`" pagin="?limit=10&offset=0" />
       </template>
   </v-card>
   <v-tabs
@@ -155,8 +195,11 @@ import localConfig from "@/local_config"
 import axios from '../plugins/axios'
 import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
 import TableBlock from './TableBlock.vue';
-
 const apiKey = localConfig.api
+const headers = ref([])
+const info = ref([])
+const dataC = ref([])
+
 const props = defineProps({
   data: {
     type: Object,
@@ -170,7 +213,9 @@ const props = defineProps({
 
 const tab = ref(1)
 const openEditBlock = ref(false)
+const openEditCoreBlock = ref(false)
 const values = ref({})
+const valuesCore = ref({})
 const route = useRoute()
 const param = ref(route.params.page)
 
@@ -185,10 +230,61 @@ const save = async () => {
     }
 }
 
+const saveCore = async () => {
+  let pathSepar = splitAndReplace(removeListSuffix(param.value))
+  if(endsWithList(param.value)) 
+    try {
+      await axios.patch(`${apiKey}core/profile/${props.data.data.id}/`, valuesCore.value)
+      location.reload()
+    } catch (error) {
+      console.error(error.type);
+    }
+}
+
+const getChooseValue = (field, value) => {
+  let s = info.value.list_fields[field]?.attributes?.choices?.filter(i => i.value === value)?.[0]?.["text"]
+  return s
+}
+const normFields = (arr) => {
+  let res = []
+  Object.keys(arr).map($ => {
+    if($ !== "_label")
+      res.push(
+        {
+          title: arr[$].attributes.label,
+          key: arr[$].source,
+          sortable: false,
+        }
+      )
+  })
+  return res
+}
+
+const getData = async () => { 
+  console.log('props.data', props.data.data.id)
+	try {
+			const options = await axios.options(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
+			info.value = options.data
+      console.log(info.value)
+			const response = await axios.get(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
+			dataC.value = response.data.results[0]
+			headers.value = normFields(info.value.list_fields)
+      Object.keys(info.value.list_fields).forEach((field) => {
+        valuesCore.value[field] = dataC.value[field];
+      });
+      console.log(valuesCore.value)
+	} catch (error) {
+			console.log(error.message);
+	}
+}
+
 onMounted(() => {
   Object.keys(props.data.list_fields).forEach((field) => {
     values.value[field] = props.data.data[field];
   });
+  if(props.type === 'auth_user_list')
+    getData()
+
 });
 </script>
 
