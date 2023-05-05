@@ -199,13 +199,13 @@
       </div>
     </div>  
   </div>
-  <div v-if="info.global_actions.length > 0" class="flex actions-line">
+  <div v-if="info.global_actions.length > 0 || (info.actions.length > 0 && showActs)" class="flex actions-line">
     <div v-for="act in info.global_actions" class="mr-4">
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
     </div> 
-    <!-- <div v-for="act in info.actions" class="mr-4">
+    <div v-for="act in info.actions" class="mr-4">
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
-    </div>   -->
+    </div>  
   </div>
   <div class="content-page-table">
     <template v-if="!data.results || data.results.length === 0">
@@ -353,6 +353,7 @@ watch(
 watch(search, _.debounce((newVal) => {
   getPaginateData(param.value)
 }, 1002))
+
 
 const selectEditField = (target, elem) => {
   console.log(target, elem)
