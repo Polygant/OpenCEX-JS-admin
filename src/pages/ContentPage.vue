@@ -36,7 +36,7 @@
     <v-card-title class="text-h5">
       Create
     </v-card-title>
-    <Create :data="showData" />
+    <Create :data="showData" :type="param" />
     <v-card-actions>
       <v-btn color="primary" block variant="tonal" @click="createDialog = false">Close</v-btn>
     </v-card-actions>
