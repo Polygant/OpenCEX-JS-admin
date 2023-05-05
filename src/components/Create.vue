@@ -1,5 +1,8 @@
 <template>
-  <div v-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
+  <div v-if="type === 'bots_botconfig_list'" class="p-8" style="min-width: 50vw;">
+    <BotConfig :data="props.data" />
+  </div>
+  <div v-else-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
     <UserGroups />
   </div>
   <div v-else class="detail-data">    
@@ -12,7 +15,6 @@
         ></v-checkbox>
       </template>
       <template v-else-if="props.data.fields[field].type === 'choice'">
-        <label>{{ props.data.fields[field].attributes.label }}</label>
         <v-select
           item-title="text"
           item-value="value"
@@ -42,6 +44,7 @@
   import axios from '../plugins/axios'
   import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
   import UserGroups from '@/components/UserGroups.vue'
+  import BotConfig from '@/components/BotConfig.vue'
 
   const apiKey = localConfig.api
   const props = defineProps({
