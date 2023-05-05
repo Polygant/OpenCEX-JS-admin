@@ -199,7 +199,7 @@
       </div>
     </div>  
   </div>
-  <div class="flex actions-line">
+  <div v-if="info.global_actions.length > 0 || info.actions.length > 0" class="flex actions-line">
     <div v-for="act in info.global_actions" class="mr-4">
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
     </div> 
