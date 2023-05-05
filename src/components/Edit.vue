@@ -1,5 +1,8 @@
 <template>
-<div v-if="props.type === 'auth_user_list'" class="p-5">
+<div v-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
+  <UserGroups :id="props.data.data.id" />
+</div>
+<div v-else-if="props.type === 'auth_user_list'" class="p-5">
   <v-btn class="mb-3 mr-2" color="primary" variant="tonal" @click="() => { openEditBlock = true; openEditCoreBlock = false; }">Edit Main Profile</v-btn>
   <v-btn class="mb-3" color="primary" variant="tonal" @click="() => { openEditBlock = false; openEditCoreBlock = true; }">Edit Full Profile</v-btn>
   <div v-if="openEditBlock">
@@ -195,6 +198,8 @@ import localConfig from "@/local_config"
 import axios from '../plugins/axios'
 import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
 import TableBlock from './TableBlock.vue';
+import UserGroups from '@/components/UserGroups.vue'
+
 const apiKey = localConfig.api
 const headers = ref([])
 const info = ref([])
