@@ -1,5 +1,8 @@
 <template>
-<div v-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
+<div v-if="type === 'bots_botconfig_list'" class="p-8" style="min-width: 50vw;">
+  <BotConfig :data="props.data" />
+</div>
+<div v-else-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
   <UserGroups :id="props.data.data.id" />
 </div>
 <div v-else-if="props.type === 'auth_user_list'" class="p-5">
@@ -199,6 +202,7 @@ import axios from '../plugins/axios'
 import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
 import TableBlock from './TableBlock.vue';
 import UserGroups from '@/components/UserGroups.vue'
+import BotConfig from '@/components/BotConfig.vue'
 
 const apiKey = localConfig.api
 const headers = ref([])

@@ -1,13 +1,12 @@
 <template>
-
 <v-tabs
   v-model="tab"
   bg-color="primary"
 >
-  <v-tab value="1">Item One</v-tab>
-  <v-tab value="2">Item Two</v-tab>
-  <v-tab value="3">Item Three</v-tab>
-  <v-tab value="4">Item Three</v-tab>
+  <v-tab value="1">Main</v-tab>
+  <v-tab value="2">Settings</v-tab>
+  <v-tab value="3">Alert settings</v-tab>
+  <v-tab value="4">Alert enable</v-tab>
 </v-tabs>
 
 <v-card-text>
@@ -166,20 +165,63 @@ const props = defineProps({
 })
 
 const values = ref({})
-  const route = useRoute()
-  const param = ref(route.params.page)
+const valuesCore = ref({})
+const route = useRoute()
+const headers = ref([])
+const info = ref([])
+const dataC = ref([])
+
+const param = ref(route.params.page)
 
 
-  const save = async () => {
-    let pathSepar = splitAndReplace(removeListSuffix(param.value))
-    if(endsWithList(param.value)) 
-      try {
-        await axios.post(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
-        location.reload()
-      } catch (error) {
-        console.error(error.type);
+const save = async () => {
+  let pathSepar = splitAndReplace(removeListSuffix(param.value))
+  if(endsWithList(param.value)) 
+    try {
+      if(props.data.data.id) { 
+        await axios.put(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
       }
-  }
+      else {
+        await axios.post(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
+      }      
+      location.reload()
+    } catch (error) {
+      console.error(error.type);
+    }
+}
+
+const getData = async () => { 
+  let pathSepar = splitAndReplace(removeListSuffix(param.value))
+	try {
+    const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
+    info.value = options.data
+    console.log(info.value)
+    const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data['id']}`);
+    dataC.value = response.data
+    headers.value = normFields(info.value.fields)
+    Object.keys(info.value.fields).forEach((field) => {
+      values.value[field] = dataC.value[field];
+    });
+    console.log('vals', values.value)
+	} catch (error) {
+			console.log(error.message);
+	}
+}
+
+const normFields = (arr) => {
+  let res = []
+  Object.keys(arr).map($ => {
+    if($ !== "_label")
+      res.push(
+        {
+          title: arr[$].attributes.label,
+          key: arr[$].source,
+          sortable: false,
+        }
+      )
+  })
+  return res
+}
 
 const tab = ref(1)
 
@@ -219,5 +261,15 @@ const inTab = (key) => {
     'low_spread_alert', 
   ].includes(key)) return 4
 }
+
+onMounted(() => {
+  if(props.data.data.id) {
+    Object.keys(props.data.list_fields).forEach((field) => {
+      values.value[field] = props.data.data[field];
+    });
+    getData()
+  }
+
+});
 
 </script>

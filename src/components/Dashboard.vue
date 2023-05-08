@@ -18,7 +18,7 @@
       </template>
     </v-card>
 	</div>
-	<div class="grid grid-cols-3 gap-8 mb-8">
+	<div class="grid grid-cols-2 gap-8 mb-8">
     <v-card>
       <template v-slot:title>
 				Trading and Withdrawals Fee
@@ -27,16 +27,8 @@
         <TableBlock :path="'dashboard_rest/tradefee/?limit=10&offset=0'" :pagin="`?limit=10&offset=0`" />
       </template>
     </v-card>
-		<v-card>
-      <template v-slot:title>
-        Launchpad Fee
-      </template>
-      <template v-slot:text>
-        <TableBlock :path="'dashboard_rest/launchpadfee/?limit=10&offset=0'" :pagin="`?limit=10&offset=0`" />
-      </template>
-    </v-card>
 		<div>
-			<v-card>
+			<v-card class="mb-2">
 				<template v-slot:title>
 					Latest Withdrawals
 				</template>
