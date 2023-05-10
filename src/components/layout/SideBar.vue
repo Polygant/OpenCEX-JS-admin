@@ -1,6 +1,6 @@
 <template>
   <v-app-bar flat color="blue lighten-5">
-    <div class="pl-8">Admin panel</div>
+    <div class="pl-8" style="font-size: 18px;">Admin panel</div>
     <div style="position: absolute; right: 10px; top: 5px;">
       <v-menu>
         <template v-slot:activator="{ props }">

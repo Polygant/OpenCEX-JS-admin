@@ -160,7 +160,7 @@
         <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
       </div> 
     </div>
-    <div class="flex justify-between p-8">    
+    <div class="flex justify-end p-8">    
       <div class="flex">
         <div v-click-outside-element="() => filterShow = false">
           <div v-if="filterShow" class="filters-block">
@@ -377,6 +377,8 @@ watch(
       selected.value = {}
       param.value = newValue;
       getData(newValue)
+      alert.value = false
+      alertText.value = ''
   }  
 )
 watch(search, _.debounce((newVal) => {
@@ -437,7 +439,11 @@ const submitAct = async () => {
     actDialog.value = false
   } catch (error) {
     alert.value = true
-    alertText.value = error.response.data[0].message
+    if(error.response?.data?.key[0]?.message) {
+      alertText.value = error.response?.data?.key[0]?.message
+    } else {
+      alertText.value = error.response?.[0]?.message
+    }
     setTimeout(() => {
       alert.value = false
       alertText.value = ''
@@ -449,9 +455,9 @@ const submitAct = async () => {
 const submitGlobalAct = async () => {
   try {
     let resObject = {}
-    if(Object.keys(actFields.value).length > 0) {
-      Object.keys(actFields.value).map($ => {
-        resObject[$] = actFields.value[$].value
+    if(Object.keys(actGlobalFields.value).length > 0) {
+      Object.keys(actGlobalFields.value).map($ => {
+        resObject[$] = actGlobalFields.value[$].value
       })
     }
     await axios.post(`${actGlobal.value.url}`, resObject);
@@ -460,7 +466,12 @@ const submitGlobalAct = async () => {
     actGlobalDialog.value = false
   } catch (error) {
     alert.value = true
-    alertText.value = error.response.data[0].message
+    console.log(error.response.data.key[0].message)
+    if(error.response?.data?.key[0]?.message) {
+      alertText.value = error.response?.data?.key[0]?.message
+    } else {
+      alertText.value = error.response?.[0]?.message
+    }
     setTimeout(() => {
       alert.value = false
       alertText.value = ''

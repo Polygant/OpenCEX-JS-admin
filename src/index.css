@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +7,12 @@
     background: #590DE5 !important;
     color: #FFF !important;
 } */
+
+* {
+    font-family: 'Roboto',sans-serif;
+}
+.v-table__wrapper tr td div,
 .v-table__wrapper tr td {
-    font-size: 12px !important;
+    font-size: 14px !important;
+    color: rgba(0, 0, 0, 0.87)
 }
