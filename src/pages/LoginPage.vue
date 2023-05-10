@@ -29,8 +29,8 @@ import axios from 'axios'
 import localConfig from "@/local_config"
 import { useRouter } from 'vue-router'
 const apiKey = localConfig.api
-const user = ref("trade@polygant.net")
-const pass = ref("1234qwer")
+const user = ref("")
+const pass = ref("")
 const code = ref("")
 const router = useRouter()
 const login = async () => {
