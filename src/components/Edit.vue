@@ -232,6 +232,10 @@ const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 
     try {
+      if(values.value['precisions'] !== undefined) {
+        console.log(values.value['precisions'])
+        values.value['precisions'] = values.value['precisions'].split(',')
+      }
       await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data.id}/`, values.value)
       location.reload()
     } catch (error) {

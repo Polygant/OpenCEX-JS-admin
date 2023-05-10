@@ -178,8 +178,11 @@ const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 
     try {
-      if(props.data.data.id) { 
-        await axios.put(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
+      delete values.value['binance_apikey']
+      delete values.value['binance_secret']
+      delete values.value['_label']
+      if(props?.data?.data?.id) { 
+        await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
       }
       else {
         await axios.post(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
@@ -263,7 +266,7 @@ const inTab = (key) => {
 }
 
 onMounted(() => {
-  if(props.data.data.id) {
+  if(props?.data?.data?.id) {
     Object.keys(props.data.list_fields).forEach((field) => {
       values.value[field] = props.data.data[field];
     });
