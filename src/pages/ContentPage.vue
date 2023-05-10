@@ -75,8 +75,8 @@
       </div>
     </div>
     <v-card-actions class="flex-wrap">
-      <v-btn color="primary" block variant="tonal" @click="submitAct()">Do</v-btn>
-      <v-btn color="primary" block variant="tonal" @click="actDialog = false">Close</v-btn>
+      <v-btn color="primary" variant="tonal" @click="submitAct()">Do</v-btn>
+      <v-btn color="primary" variant="tonal" @click="actDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -113,8 +113,8 @@
       </div>
     </div>
     <v-card-actions class="flex-wrap">
-      <v-btn color="primary" block variant="tonal" @click="submitGlobalAct()">Do</v-btn>
-      <v-btn color="primary" block variant="tonal" @click="actGlobalDialog = false">Close</v-btn>
+      <v-btn color="primary" variant="tonal" @click="submitGlobalAct()">Do</v-btn>
+      <v-btn color="primary" variant="tonal" @click="actGlobalDialog = false">Close</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -127,8 +127,8 @@
     <div class="p-8">
       Are you shure to delete this?
       <v-card-actions class="flex-wrap">
-        <v-btn color="primary" block variant="tonal" @click="deleteItem">Yes</v-btn><br/>
-        <v-btn color="primary" block variant="tonal" @click="deleteDialog = false">Close</v-btn>
+        <v-btn color="primary" variant="tonal" @click="deleteItem">Yes</v-btn><br/>
+        <v-btn color="primary" variant="tonal" @click="deleteDialog = false">Close</v-btn>
       </v-card-actions>
     </div>
   </v-card>
@@ -141,10 +141,9 @@
     <div class="flex">
       <v-text-field
         v-model="search"
+        variant="underlined"
         append-icon="mdi-magnify"
         label="Search"
-        single-line
-        hide-details
         class="content-page__search"
       >
       </v-text-field>  
@@ -224,6 +223,16 @@
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
     </div>  
   </div>
+  <v-alert
+      v-if="alert"
+      color="pink"
+      dark
+      border="top"
+      icon="mdi-home"
+      transition="scale-transition"
+    >
+    {{ alertText }}
+  </v-alert>
   <div class="content-page-table">
     <template v-if="!data.results || data.results.length === 0">
       <div class="text-center">No data available</div>
@@ -317,6 +326,8 @@ import { splitAndReplace, endsWithList, removeListSuffix } from "@/plugins/helpe
 import moment from 'moment'
 import Dashboard from '@/components/Dashboard.vue'
 const nav = useNavStore()
+const alert = ref(false)
+const alertText = ref('')
 
 const apiKey = localConfig.api
 const baseUrl = localConfig.base
@@ -411,27 +422,49 @@ const submitAct = async () => {
     if(selected.value[$]) ids.push(parseInt($))
   })
   try {
+    let resObject = {}
+    if(Object.keys(actFields.value).length > 0) {
+      Object.keys(actFields.value).map($ => {
+        resObject[$] = actFields.value[$].value
+      })
+    }
     await axios.post(`${act.value.url}`, {
       ids: ids,
-      ...actFields.value
+      ...resObject
     });
     selected.value = {}
     getPaginateData(param.value)
     actDialog.value = false
   } catch (error) {
-    console.log(error.type);
+    alert.value = true
+    alertText.value = error.response.data[0].message
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
     actDialog.value = false
   }
 }
 
 const submitGlobalAct = async () => {
   try {
-    await axios.post(`${actGlobal.value.url}`, actGlobalFields.value);
+    let resObject = {}
+    if(Object.keys(actFields.value).length > 0) {
+      Object.keys(actFields.value).map($ => {
+        resObject[$] = actFields.value[$].value
+      })
+    }
+    await axios.post(`${actGlobal.value.url}`, resObject);
     selected.value = {}
     getPaginateData(param.value)
     actGlobalDialog.value = false
   } catch (error) {
-    console.log(error.type);
+    alert.value = true
+    alertText.value = error.response.data[0].message
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
     actGlobalDialog.value = false
   }
 }

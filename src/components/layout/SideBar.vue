@@ -1,6 +1,19 @@
 <template>
   <v-app-bar flat color="blue lighten-5">
     <div class="pl-8">Admin panel</div>
+    <div style="position: absolute; right: 10px; top: 5px;">
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-account" v-bind="props">
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
+            <v-list-item-title @click="logout()">Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </div>
   </v-app-bar>
 
   <v-navigation-drawer permanent>
@@ -30,6 +43,11 @@ const apiKey = localConfig.api
 
 const navigation = ref([])
 const resources = ref([])
+
+const logout = () => {
+  localStorage.setItem('jwt_token', "")
+  initRouter.push({name: 'Login'})
+}
 
 const getNavigation = async () => {
   try {
