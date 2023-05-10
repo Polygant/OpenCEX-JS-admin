@@ -48,8 +48,31 @@
   width="auto"
 >
   <v-card>
-    <div class="p-8">
+    <div class="p-8" style="min-width: 300px;">
       Do {{  act.name }} ?
+      <div v-for="field in act.fields" :key="field.name">
+        <div class="flex" v-if="field.type === 'integer'">
+          <v-text-field
+            type="number"
+            v-model="actFields[field.name].value"
+            :label="actFields[field.name].label"
+          ></v-text-field>
+        </div>             
+        <div class="flex" v-else-if="field.type === 'boolean'">
+          <v-switch
+            v-model="actFields[field.name].value"
+            :label="actFields[field.name].label"
+            hide-details
+            inset
+          ></v-switch>
+        </div>
+        <div class="flex" v-else>
+          <v-text-field 
+            v-model="actFields[field.name].value"
+            :label="actFields[field.name].label"
+          ></v-text-field>
+        </div>
+      </div>
     </div>
     <v-card-actions class="flex-wrap">
       <v-btn color="primary" block variant="tonal" @click="submitAct()">Do</v-btn>
@@ -64,33 +87,27 @@
 >
   <v-card>
     <div class="p-8">
-      Do {{  actGlobal.name }} ?
-      {{ actGlobalFields }}
+      Do {{  actGlobal.name }} ?      
       <div v-for="field in actGlobal.fields" :key="field.name">
         <div class="flex" v-if="field.type === 'integer'">
           <v-text-field
             type="number"
-            v-model="actGlobalFields[field.nameп]"
+            :label="actGlobalFields[field.name].label"
+            v-model="actGlobalFields[field.name].value"
           ></v-text-field>
         </div>      
-        <!-- <div class="flex" v-else-if="filters[filter].type === 'choice'">
-          <v-select
-            item-title="text"
-            item-value="value"
-            v-model="actGlobalFields[field]"
-            :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
-          ></v-select>
-        </div> -->
         <div class="flex" v-else-if="field.type === 'boolean'">
           <v-switch
-            v-model="actGlobalFields[field.name]"
+            :label="actGlobalFields[field.name].label"
+            v-model="actGlobalFields[field.name].value"
             hide-details
             inset
           ></v-switch>
         </div>
         <div class="flex" v-else>
           <v-text-field 
-            v-model="actGlobalFields[field.name]"
+            :label="actGlobalFields[field.name].label"
+            v-model="actGlobalFields[field.name].value"
           ></v-text-field>
         </div>
       </div>
@@ -319,6 +336,7 @@ const editDialog = ref(false)
 const createDialog = ref(false)
 const deleteDialog = ref(false)
 const actDialog = ref(false)
+const actFields = ref({})
 const actGlobalDialog = ref(false)
 const actGlobalFields = ref({})
 const filterShow = ref(false)
@@ -372,6 +390,9 @@ const clearFilter = () => {
 
 const doAct = async (actObj) => {
   act.value = actObj
+  act.value.fields.map($ => {
+    actFields.value[$.name] = $
+  })
   actDialog.value = true
 }
 
@@ -379,9 +400,8 @@ const doGlobalAct = async (actObj) => {
   actGlobal.value = actObj
   actGlobal.value.fields.map($ => {
     console.log($)
-    actGlobalFields.value[$.name] = ""
+    actGlobalFields.value[$.name] = $
   })
-  console.log(actGlobalFields.value)
   actGlobalDialog.value = true
 }
 
@@ -393,6 +413,7 @@ const submitAct = async () => {
   try {
     await axios.post(`${act.value.url}`, {
       ids: ids,
+      ...actFields.value
     });
     selected.value = {}
     getPaginateData(param.value)
@@ -491,7 +512,7 @@ const getData = async (path) => {
     try {
       const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
       info.value = options.data
-      filters.value = options.data.filters
+      filters.value = options.data.filters      
       Object.keys(filters.value).map($ => filters.value[$]['on'] = "")
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
       data.value = response.data
