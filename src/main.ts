@@ -9,6 +9,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createPinia } from 'pinia'
 import vueClickOutsideElement from 'vue-click-outside-element'
+import { createMetaManager } from 'vue-meta'
 
 const pinia = createPinia()
 
@@ -23,6 +24,7 @@ app.use(vuetify)
 app.use(vueClickOutsideElement)
 app.use(initRouter)
 app.use(pinia)
+app.use(createMetaManager())
 
 // eslint-disable-next-line vue/multi-word-component-names
 app.mount("#app");
