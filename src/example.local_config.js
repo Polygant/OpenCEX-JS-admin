@@ -1,6 +1,7 @@
 const localConfig = {
-  api: "https://localhost:8080/apiadmin/",
-  base: "admin" 
+  api: "https://<Your api url>",
+  base: "admin",
+  title: "Crypto exchange"
 }
 
 export default localConfig;
