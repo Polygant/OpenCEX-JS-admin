@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper">
-    <v-sheet width="300" class="mx-auto">
+    <v-sheet width="300" class="mx-auto login-block">
+      <h1 class="login-block-h1">Admin Panel</h1>
       <v-form fast-fail @submit.prevent>
         <v-text-field
           v-model="user"
@@ -10,6 +11,7 @@
         <v-text-field
           v-model="pass"
           label="Password"
+          type="password"
         ></v-text-field>
 
         <v-text-field
@@ -83,6 +85,7 @@ const showAlert = (err) => {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background: #38485C;
 }
 input {
     border: 1px solid #CCC;
@@ -98,5 +101,14 @@ label {
   right: 0 !important;
   width: 520px !important;
   z-index: 22 !important;
+}
+.login-block {
+  padding: 40px;
+}
+.login-block-h1 {
+  font-size: 25px;
+  font-weight: bold;
+  padding-bottom: 10px;
+  text-align: center;
 }
 </style>
