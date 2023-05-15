@@ -21,6 +21,17 @@
       </v-form>
     </v-sheet>
   </div>
+  <v-alert
+    class="alert-block"
+    v-if="alert"
+    color="pink"
+    dark
+    border="top"
+    icon="mdi-home"
+    transition="scale-transition"
+  >
+    {{ alertText }}
+  </v-alert>
 </template>
 
 <script setup>
@@ -29,9 +40,13 @@ import axios from 'axios'
 import localConfig from "@/local_config"
 import { useRouter } from 'vue-router'
 const apiKey = localConfig.api
+import { findErrMessage } from "@/plugins/helpers"
 const user = ref("")
 const pass = ref("")
 const code = ref("")
+const alert = ref(false)
+const alertText = ref('')
+
 const router = useRouter()
 const login = async () => {
   try {
@@ -44,7 +59,19 @@ const login = async () => {
     localStorage.setItem("jwt_token", response.data.access_token)
     router.push({path: '/page/dashboard'})
   } catch (error) {
-    console.error(error);
+    showAlert(error)
+  }
+}
+
+const showAlert = (err) => {
+  const alertMessage = findErrMessage(err)
+  if(alertMessage) {
+    alert.value = true
+    alertText.value = alertMessage
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
   }
 }
 
@@ -64,5 +91,12 @@ input {
 label {
     display: block;
     width: 150px;
+}
+.alert-block {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 520px !important;
+  z-index: 22 !important;
 }
 </style>
