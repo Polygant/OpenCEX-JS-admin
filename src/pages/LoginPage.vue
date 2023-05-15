@@ -39,8 +39,8 @@ import { ref } from 'vue'
 import axios from 'axios'
 import localConfig from "@/local_config"
 import { useRouter } from 'vue-router'
-const apiKey = localConfig.api
 import { findErrMessage } from "@/plugins/helpers"
+const apiKey = localConfig.api
 const user = ref("")
 const pass = ref("")
 const code = ref("")
