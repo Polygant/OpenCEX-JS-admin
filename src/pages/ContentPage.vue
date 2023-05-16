@@ -223,12 +223,21 @@
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
     </div>  
   </div>  
-  <div class="content-page-table">
+  <div class="flex justify-center" v-if="tableLoading">
+    <v-progress-circular
+        :size="70"
+        :width="7"
+        color="purple"
+        indeterminate
+      ></v-progress-circular>
+  </div>  
+  <div class="content-page-table" v-else>
     <template v-if="!data.results || data.results.length === 0">
       <div class="text-center">No data available</div>
     </template>
     <v-data-table
       v-else
+      :loading="true"
       :headers="headerShow"
       :items="data.results"
       :hide-default-header="true"
@@ -329,6 +338,8 @@ import Dashboard from '@/components/Dashboard.vue'
 const nav = useNavStore()
 const alert = ref(false)
 const alertText = ref('')
+
+const tableLoading = ref(true)
 
 const apiKey = localConfig.api
 const baseUrl = localConfig.base
@@ -541,6 +552,7 @@ watch(filterStr, () => {
 })
 
 const getData = async (path) => { 
+  tableLoading.value = true
   let pathSepar = splitAndReplace(removeListSuffix(path))
   await getActions()
   addition.value = await nav.getResources.filter($ => $.name === removeListSuffix(path))  
@@ -580,7 +592,7 @@ const getData = async (path) => {
         })
         localStorage.setItem('customize', JSON.stringify(headersCustom.value))
       }
-      
+      tableLoading.value = false
     } catch (error) {         
       showAlert(error)
     }
@@ -591,14 +603,17 @@ watch(pageNum, (newVal) => {
 })
 
 const getPaginateData = async (path) => { 
+  tableLoading.value = true
   let pathSepar = splitAndReplace(removeListSuffix(path))
   if(endsWithList(path)) 
     try {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}&search=${search.value}`);
       data.value = response.data
       pageCount.value = response.data.count / 10
+      tableLoading.value = false
     } catch (error) {      
       showAlert(error)
+      tableLoading.value = false
     }
 }
 

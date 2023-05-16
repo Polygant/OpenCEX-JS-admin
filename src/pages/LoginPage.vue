@@ -48,7 +48,6 @@ const pass = ref("")
 const code = ref("")
 const alert = ref(false)
 const alertText = ref('')
-
 const router = useRouter()
 const login = async () => {
   try {
