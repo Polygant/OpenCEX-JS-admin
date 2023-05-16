@@ -129,7 +129,7 @@
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="1">
-          <TableBlock :path="`auth/user/?user_id=${props.data.data.id}&limit=10&offset=0`" />
+          <TableBlock :path="`auth/user/?id=${props.data.data.id}`" />
         </v-window-item>
         <v-window-item value="2">
           <TableBlock :path="`core/profile/?user_id=${props.data.data.id}&limit=10&offset=0`" />
@@ -259,6 +259,7 @@ const saveCore = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 
     try {
+      delete valuesCore.value.user
       await axios.patch(`${apiKey}core/profile/${props.data.data.id}/`, valuesCore.value)
       location.reload()
     } catch (error) {

@@ -16,7 +16,7 @@
 
         <v-text-field
           v-model="code"
-          label="Code"
+          label="2FA code"
         ></v-text-field>
 
         <v-btn block class="mt-2" variant="tonal" @click="login()">Submit</v-btn>
