@@ -375,7 +375,7 @@ const filters = ref({})
 const act = ref({})
 const actGlobal = ref({})
 const selected = ref({})
-
+const resources = ref([])
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
