@@ -36,7 +36,7 @@ import { onBeforeMount, ref } from 'vue'
 import { useNavStore } from '@/stores/nav'
 import initRouter from '@/router/'
 import localConfig from "@/local_config"
-
+import { useRoute } from 'vue-router'
 const nav = useNavStore()
 
 const apiKey = localConfig.api
@@ -48,17 +48,19 @@ const logout = () => {
   localStorage.setItem('jwt_token', "")
   initRouter.push({name: 'Login'})
 }
-
+const route = useRoute()
+const param = ref(route.path)
 const getNavigation = async () => {
-  try {
-    const response = await axios.get(`${apiKey}navigation/`)
-    navigation.value = response.data
-    nav.setNavigation(response.data)
-  } catch (error) {
-    if(error?.response?.data?.type === "authentication_failed" || error?.response?.data?.code?.code === "token_not_valid" || error?.response?.data?.type === "not_authenticated") {
-      initRouter.push({name: 'Login'})
+  if(!window.location.href.includes('/login'))
+    try {
+      const response = await axios.get(`${apiKey}navigation/`)
+      navigation.value = response.data
+      nav.setNavigation(response.data)
+    } catch (error) {
+      if(error?.response?.data?.type === "authentication_failed" || error?.response?.data?.code?.code === "token_not_valid" || error?.response?.data?.type === "not_authenticated") {
+        initRouter.push({name: 'Login'})
+      }
     }
-  }
 } 
 
 const getResources = async () => {

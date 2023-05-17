@@ -1,4 +1,15 @@
 <template>
+  <v-alert
+  class="alert-block"
+  v-if="alert"
+  color="pink"
+  dark
+  border="top"
+  icon="mdi-home"
+  transition="scale-transition"
+>
+{{ alertText }}
+</v-alert>
 <v-tabs
   v-model="tab"
   bg-color="primary"
@@ -154,7 +165,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
-import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
+import { splitAndReplace, endsWithList, removeListSuffix, findErrMessage } from "../plugins/helpers"
 const apiKey = localConfig.api
 
 const props = defineProps({
@@ -170,9 +181,21 @@ const route = useRoute()
 const headers = ref([])
 const info = ref([])
 const dataC = ref([])
-
+const alert = ref(false)
+const alertText = ref('')
 const param = ref(route.params.page)
 
+const showAlert = (err) => {
+  const alertMessage = findErrMessage(err)
+  if(alertMessage) {
+    alert.value = true
+    alertText.value = alertMessage
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
+  }
+}
 
 const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
@@ -189,7 +212,7 @@ const save = async () => {
       }      
       location.reload()
     } catch (error) {
-      console.error(error.type);
+      showAlert(error)      
     }
 }
 
@@ -197,17 +220,15 @@ const getData = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
 	try {
     const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
-    info.value = options.data
-    console.log(info.value)
+    info.value = options.data    
     const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data['id']}`);
     dataC.value = response.data
     headers.value = normFields(info.value.fields)
     Object.keys(info.value.fields).forEach((field) => {
       values.value[field] = dataC.value[field];
-    });
-    console.log('vals', values.value)
+    });    
 	} catch (error) {
-			console.log(error.message);
+    showAlert(error)			
 	}
 }
 

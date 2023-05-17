@@ -57,12 +57,23 @@
       </template>
     </v-card>
   </div>
+  <v-alert
+    class="alert-block"
+    v-if="alert"
+    color="pink"
+    dark
+    border="top"
+    icon="mdi-home"
+    transition="scale-transition"
+  >
+  {{ alertText }}
+</v-alert>
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
-  
+import { findErrMessage } from "../plugins/helpers"  
 const apiKey = localConfig.api
 
 const chips = ref([])
@@ -71,7 +82,8 @@ const users = ref([])
 const models = ref([])
 const modelsAdded = ref([])
 const permissions = ref({})
-
+const alert = ref(false)
+const alertText = ref('')
 const props = defineProps({
   id: {
     type: Object,
@@ -84,8 +96,20 @@ const getData = async () => {
 			const response = await axios.get(`${apiKey}models`);
 			models.value = response.data
 	} catch (error) {
-			console.log(error.message);
+    showAlert(error)			
 	}
+}
+
+const showAlert = (err) => {
+  const alertMessage = findErrMessage(err)
+  if(alertMessage) {
+    alert.value = true
+    alertText.value = alertMessage
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
+  }
 }
 
 const fetchUsers = async (searchValue) => {
@@ -95,7 +119,7 @@ const fetchUsers = async (searchValue) => {
       users.value.push({value: $.id, text: $.email})
     })
   } catch (error) {
-    console.error(error.type);
+    showAlert(error)    
   }
 }
 
@@ -145,7 +169,7 @@ const createGroup = async () => {
       await axios.post(`${apiKey}permissions/`, groupInfo)
     location.reload()
   } catch(e) {
-    console.log(e.message)
+    showAlert(error)    
   }
 }
 
@@ -170,7 +194,7 @@ const getProfile = async () => {
       }
     })
   } catch (error) {
-    console.error(error.type);
+    showAlert(error)    
   }
 }
 

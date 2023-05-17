@@ -129,7 +129,7 @@
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="1">
-          <TableBlock :path="`auth/user/?user_id=${props.data.data.id}&limit=10&offset=0`" />
+          <TableBlock :path="`auth/user/?id=${props.data.data.id}`" />
         </v-window-item>
         <v-window-item value="2">
           <TableBlock :path="`core/profile/?user_id=${props.data.data.id}&limit=10&offset=0`" />
@@ -193,17 +193,29 @@
   </div>
   <v-btn color="primary" block variant="tonal" @click="save">Save</v-btn>
 </div>
+<v-alert
+    class="alert-block"
+    v-if="alert"
+    color="pink"
+    dark
+    border="top"
+    icon="mdi-home"
+    transition="scale-transition"
+  >
+  {{ alertText }}
+</v-alert>
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
-import { splitAndReplace, endsWithList, removeListSuffix } from "../plugins/helpers"
+import { splitAndReplace, endsWithList, removeListSuffix, findErrMessage } from "../plugins/helpers"
 import TableBlock from './TableBlock.vue';
 import UserGroups from '@/components/UserGroups.vue'
 import BotConfig from '@/components/BotConfig.vue'
-
+const alert = ref(false)
+const alertText = ref('')
 const apiKey = localConfig.api
 const headers = ref([])
 const info = ref([])
@@ -239,7 +251,7 @@ const save = async () => {
       await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data.id}/`, values.value)
       location.reload()
     } catch (error) {
-      console.error(error.type);
+      showAlert(error)      
     }
 }
 
@@ -247,10 +259,11 @@ const saveCore = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 
     try {
+      delete valuesCore.value.user
       await axios.patch(`${apiKey}core/profile/${props.data.data.id}/`, valuesCore.value)
       location.reload()
     } catch (error) {
-      console.error(error.type);
+      showAlert(error)      
     }
 }
 
@@ -287,7 +300,7 @@ const getData = async () => {
       });
       console.log(valuesCore.value)
 	} catch (error) {
-			console.log(error.message);
+      showAlert(error)			
 	}
 }
 
@@ -299,6 +312,18 @@ onMounted(() => {
     getData()
 
 });
+
+const showAlert = (err) => {
+  const alertMessage = findErrMessage(err)
+  if(alertMessage) {
+    alert.value = true
+    alertText.value = alertMessage
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
+  }
+}
 </script>
 
 <style scoped>
@@ -312,5 +337,12 @@ onMounted(() => {
 }
 .hidden {
   display: none;
+}
+.alert-block {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 520px !important;
+  z-index: 22 !important;
 }
 </style>

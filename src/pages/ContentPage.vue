@@ -222,23 +222,22 @@
     <div v-for="act in info.actions" class="mr-4">
       <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
     </div>  
-  </div>
-  <v-alert
-      v-if="alert"
-      color="pink"
-      dark
-      border="top"
-      icon="mdi-home"
-      transition="scale-transition"
-    >
-    {{ alertText }}
-  </v-alert>
-  <div class="content-page-table">
+  </div>  
+  <div class="flex justify-center" v-if="tableLoading">
+    <v-progress-circular
+        :size="70"
+        :width="7"
+        color="purple"
+        indeterminate
+      ></v-progress-circular>
+  </div>  
+  <div class="content-page-table" v-else>
     <template v-if="!data.results || data.results.length === 0">
       <div class="text-center">No data available</div>
     </template>
     <v-data-table
       v-else
+      :loading="true"
       :headers="headerShow"
       :items="data.results"
       :hide-default-header="true"
@@ -258,7 +257,7 @@
             <img width="100" :src="item.columns[i.key]" />
           </div>
           <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-            {{ moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') }}
+            {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '-' }}
           </template>
           <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
             {{ getChooseValue(i.key, item.columns[i.key]) }}
@@ -309,6 +308,17 @@
     </div>
   </div>
 </template>
+<v-alert
+    class="alert-block"
+    v-if="alert"
+    color="pink"
+    dark
+    border="top"
+    icon="mdi-home"
+    transition="scale-transition"
+  >
+  {{ alertText }}
+</v-alert>
 </template>
 
 <script setup>
@@ -322,12 +332,14 @@ import Edit from '@/components/Edit.vue'
 import Create from '@/components/Create.vue'
 import localConfig from "@/local_config"
 import _ from 'lodash'
-import { splitAndReplace, endsWithList, removeListSuffix } from "@/plugins/helpers"
+import { splitAndReplace, endsWithList, removeListSuffix, findErrMessage } from "@/plugins/helpers"
 import moment from 'moment'
 import Dashboard from '@/components/Dashboard.vue'
 const nav = useNavStore()
 const alert = ref(false)
 const alertText = ref('')
+
+const tableLoading = ref(false)
 
 const apiKey = localConfig.api
 const baseUrl = localConfig.base
@@ -363,8 +375,7 @@ const filters = ref({})
 const act = ref({})
 const actGlobal = ref({})
 const selected = ref({})
-const lifeEdit = ref({})
-
+const resources = ref([])
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
@@ -385,6 +396,17 @@ watch(search, _.debounce((newVal) => {
   getPaginateData(param.value)
 }, 1002))
 
+const showAlert = (err) => {
+  const alertMessage = findErrMessage(err)
+  if(alertMessage) {
+    alert.value = true
+    alertText.value = alertMessage
+    setTimeout(() => {
+      alert.value = false
+      alertText.value = ''
+    }, 3000)
+  }
+}
 
 const selectEditField = (target, elem) => {
   console.log(target, elem)
@@ -437,17 +459,8 @@ const submitAct = async () => {
     selected.value = {}
     getPaginateData(param.value)
     actDialog.value = false
-  } catch (error) {
-    alert.value = true
-    if(error.response?.data?.key[0]?.message) {
-      alertText.value = error.response?.data?.key[0]?.message
-    } else {
-      alertText.value = error.response?.[0]?.message
-    }
-    setTimeout(() => {
-      alert.value = false
-      alertText.value = ''
-    }, 3000)
+  } catch (error) {    
+    showAlert(error)
     actDialog.value = false
   }
 }
@@ -464,18 +477,8 @@ const submitGlobalAct = async () => {
     selected.value = {}
     getPaginateData(param.value)
     actGlobalDialog.value = false
-  } catch (error) {
-    alert.value = true
-    console.log(error.response.data.key[0].message)
-    if(error.response?.data?.key[0]?.message) {
-      alertText.value = error.response?.data?.key[0]?.message
-    } else {
-      alertText.value = error.response?.[0]?.message
-    }
-    setTimeout(() => {
-      alert.value = false
-      alertText.value = ''
-    }, 3000)
+  } catch (error) {    
+    showAlert(error)
     actGlobalDialog.value = false
   }
 }
@@ -525,7 +528,7 @@ const getActions = async () => {
     resources.value = response.data
     nav.setResources(response.data)
   } catch (error) {
-    console.log(error.type);
+    console.log(error)
   }
 } 
 
@@ -549,6 +552,7 @@ watch(filterStr, () => {
 })
 
 const getData = async (path) => { 
+  tableLoading.value = true
   let pathSepar = splitAndReplace(removeListSuffix(path))
   await getActions()
   addition.value = await nav.getResources.filter($ => $.name === removeListSuffix(path))  
@@ -588,10 +592,10 @@ const getData = async (path) => {
         })
         localStorage.setItem('customize', JSON.stringify(headersCustom.value))
       }
-      
-      console.log(headers.value)
-    } catch (error) {
-      console.error(error.type);
+      tableLoading.value = false
+    } catch (error) {         
+      showAlert(error)
+      tableLoading.value = false
     }
 }
 
@@ -600,14 +604,17 @@ watch(pageNum, (newVal) => {
 })
 
 const getPaginateData = async (path) => { 
+  tableLoading.value = true
   let pathSepar = splitAndReplace(removeListSuffix(path))
   if(endsWithList(path)) 
     try {
       const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}&search=${search.value}`);
       data.value = response.data
       pageCount.value = response.data.count / 10
-    } catch (error) {
-      console.error(error.type);
+      tableLoading.value = false
+    } catch (error) {      
+      showAlert(error)
+      tableLoading.value = false
     }
 }
 
@@ -622,8 +629,8 @@ const getDetailData = async (id) => {
         data: response.data 
       }
       infoDialog.value = true
-    } catch (error) {
-      console.error(error.type);
+    } catch (error) {      
+      showAlert(error)      
     }
 }
 
@@ -636,8 +643,8 @@ const getCreateData = async () => {
         fields: info.value.fields, 
       }
       createDialog.value = true
-    } catch (error) {
-      console.error(error.type);
+    } catch (error) {      
+      showAlert(error)
     }
 }
 
@@ -652,8 +659,8 @@ const getEditData = async (id) => {
         data: response.data 
       }
       editDialog.value = true
-    } catch (error) {
-      console.error(error.type);
+    } catch (error) {      
+      showAlert(error)
     }
 }
 
@@ -664,8 +671,8 @@ const deleteItem = async () => {
       await axios.delete(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${deleteItemId.value}/?`);
       deleteDialog.value = false
       location.reload()
-    } catch (error) {
-      console.error(error.type);
+    } catch (error) {      
+      showAlert(error)
     }
 }
 
@@ -740,5 +747,12 @@ const deleteItemDialog = (id) => {
   padding: 20px;
   background: #CCC;
   margin-top: 10px;
+}
+.alert-block {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 520px !important;
+  z-index: 22 !important;
 }
 </style>
