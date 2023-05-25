@@ -339,7 +339,7 @@ const nav = useNavStore()
 const alert = ref(false)
 const alertText = ref('')
 
-const tableLoading = ref(true)
+const tableLoading = ref(false)
 
 const apiKey = localConfig.api
 const baseUrl = localConfig.base
@@ -375,7 +375,7 @@ const filters = ref({})
 const act = ref({})
 const actGlobal = ref({})
 const selected = ref({})
-
+const resources = ref([])
 onBeforeMount(() => {
   pageNum.value = 1
   pageCount.value = 1
@@ -595,6 +595,7 @@ const getData = async (path) => {
       tableLoading.value = false
     } catch (error) {         
       showAlert(error)
+      tableLoading.value = false
     }
 }
 
