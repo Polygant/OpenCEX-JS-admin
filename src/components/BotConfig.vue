@@ -205,7 +205,7 @@ const save = async () => {
       delete values.value['binance_secret']
       delete values.value['_label']
       if(props?.data?.data?.id) { 
-        await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)
+        await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props?.data?.data?.id}`, values.value)
       }
       else {
         await axios.post(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`, values.value)

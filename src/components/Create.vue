@@ -6,8 +6,8 @@
     <UserGroups />
   </div>
   <div v-else class="detail-data">    
-    <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
-      <template v-if="props.data.fields[field].attributes.read_only === true"></template>
+    <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">      
+      <template v-if="props.data.fields[field].attributes.read_only === true || props.data.fields[field].attributes.label === 'Precisions'"></template>
       <template v-else-if="props.data.fields[field].type === 'boolean'">
         <v-checkbox
           :label="props.data.fields[field].attributes.label"
