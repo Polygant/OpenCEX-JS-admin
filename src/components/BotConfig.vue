@@ -26,6 +26,17 @@
       <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
         <div v-if="inTab(field) === 1">
           <template v-if="props.data.fields[field].attributes.read_only === true"></template>
+          <template v-else-if="props.data.fields[field].attributes.label === 'User'">
+            <v-autocomplete
+              label="Users"
+              clearable
+              :items="users"
+              item-title="text"
+              item-value="value"
+              v-model="values[field]"
+              @update:search="fetchUsers"
+            ></v-autocomplete>
+          </template>
           <template v-else-if="props.data.fields[field].type === 'boolean'">
             <v-checkbox
               :label="props.data.fields[field].attributes.label"
@@ -196,6 +207,19 @@ const showAlert = (err) => {
     }, 3000)
   }
 }
+const users = ref([])
+const chips = ref([])
+const fetchUsers = async (searchValue) => {
+  users.value = []
+  try {
+    const response = await axios.get(`${apiKey}auth/user/`,{ params: { search: searchValue } })
+    response.data.results.map($ => {
+      users.value.push({value: $.id, text: $.email})
+    })
+  } catch (error) {
+    showAlert(error)    
+  }
+}
 
 const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
@@ -224,9 +248,12 @@ const getData = async () => {
     const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data['id']}`);
     dataC.value = response.data
     headers.value = normFields(info.value.fields)
+    users.value = []
+    await fetchUsers()
+    console.log(users)
     Object.keys(info.value.fields).forEach((field) => {
       values.value[field] = dataC.value[field];
-    });    
+    });
 	} catch (error) {
     showAlert(error)			
 	}
