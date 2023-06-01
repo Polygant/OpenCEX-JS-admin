@@ -160,35 +160,39 @@
       </v-card-text>
   </div>
   <div v-else class="detail-data">
-    <div v-for="field in Object.keys(props.data.list_fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
-      <template v-if="props.data.list_fields[field].attributes.read_only === true">
+    <div v-for="field in Object.keys(props.data.fields)" class="detail-data-item" :class="{'hidden': field === '_label'}">
+      <template v-if="props.data.fields[field].attributes.read_only === true">
        
       </template>
-      <template v-else-if="props.data.list_fields[field].type === 'boolean'">
+      <template v-else-if="props.data.fields[field].attributes.label === 'Links'">
+        <v-textarea label="Label" v-model="values[field]">
+        </v-textarea>
+      </template>
+      <template v-else-if="props.data.fields[field].type === 'boolean'">
         {{ values[field] }}
         <v-checkbox
-          :label="props.data.list_fields[field].attributes.label"
+          :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
         ></v-checkbox>
       </template>
-      <template v-else-if="props.data.list_fields[field].type === 'choice'">
+      <template v-else-if="props.data.fields[field].type === 'choice'">
         <label>{{ props.data.list_fields[field].attributes.label }}</label>
         <v-select
           item-title="text"
           item-value="value"
-          :items="props.data.list_fields[field].attributes.choices"
-          :label="props.data.list_fields[field].attributes.label"
+          :items="props.data.fields[field].attributes.choices"
+          :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
         ></v-select>
       </template>
-      <template v-else-if="props.data.list_fields[field].type === 'datetime'">
+      <template v-else-if="props.data.fields[field].type === 'datetime'">
         <v-date-picker v-model="values[field]"></v-date-picker>
       </template>
       <template v-else>
         <v-text-field 
-          :label="props.data.list_fields[field].attributes.label"
+          :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
-          :hint="props.data.list_fields[field].attributes.hint"
+          :hint="props.data.fields[field].attributes.hint"
         ></v-text-field>
       </template>
     </div>
