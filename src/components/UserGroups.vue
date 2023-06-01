@@ -3,7 +3,6 @@
     :label="'Group Name'"
     v-model="groupName"
   ></v-text-field> 
-  {{ chips }}   
   <v-autocomplete
     chips
     label="Users"
