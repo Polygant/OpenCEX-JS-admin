@@ -298,7 +298,9 @@ const inTab = (key) => {
     'use_custom_price',
     'low_orders_match',
     'low_orders_min_order_size',
-    'low_orders_match_greater_order'
+    'low_orders_match_greater_order',
+    'symbol_precision',
+    'quote_precision',
   ].includes(key)) return 2
   if([
     'liquidity_buy_order_size', 
