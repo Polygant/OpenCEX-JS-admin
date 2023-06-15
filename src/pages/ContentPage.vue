@@ -308,7 +308,7 @@
       <div class="text-center">
         <v-pagination
           v-model="pageNum"
-          :length="pageCount"
+          :length="pageCount > 1 && pageCount < 2 ? pageCount + 1 : pageCount"
         ></v-pagination>
       </div>
     </div>
@@ -447,7 +447,6 @@
   const doGlobalAct = async (actObj) => {
     actGlobal.value = actObj
     actGlobal.value.fields.map($ => {
-      console.log($)
       actGlobalFields.value[$.name] = $
     })
     actGlobalDialog.value = true
@@ -590,6 +589,9 @@
         const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
         data.value = response.data
         pageCount.value = response.data.count / 10
+        if(response.data.count > 10 && response.data.count < 20) {
+          response.data.count = 2
+        }
         headers.value = normFields(info.value.list_fields)
         const customizeFromString = localStorage.getItem('customize')
         if(customizeFromString.length > 3) {
