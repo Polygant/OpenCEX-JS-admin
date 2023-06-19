@@ -159,7 +159,7 @@ const createGroup = async () => {
     id: props.id,
     name: groupName.value,
     permissions: permissionsArr,
-    users: chips.value
+    users: chips.value.map($ => $.value)
   }
   try {
     if(props.id !== '')
