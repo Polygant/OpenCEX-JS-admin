@@ -21,12 +21,12 @@
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.list_fields[field].type === 'choice'">
-            <label>{{ props.data.list_fields[field].attributes.label }}</label>
+            <label>{{ props.data.list_fields[field]?.attributes.label }}</label>
             <v-select
               item-title="text"
               item-value="value"
-              :items="props.data.list_fields[field].attributes.choices"
-              :label="props.data.list_fields[field].attributes.label"
+              :items="props.data.list_fields[field]?.attributes.choices"
+              :label="props.data.list_fields[field]?.attributes.label"
               v-model="values[field]"
             ></v-select>
           </template>
@@ -176,7 +176,7 @@
         ></v-checkbox>
       </template>
       <template v-else-if="props.data.fields[field].type === 'choice'">
-        <label>{{ props.data.list_fields[field].attributes.label }}</label>
+        <label>{{ props.data.fields[field].attributes.label }}</label>
         <v-select
           item-title="text"
           item-value="value"
@@ -250,7 +250,6 @@
     if(endsWithList(param.value)) 
       try {
         if(values.value['precisions'] !== undefined && typeof values.value['precisions'] === 'string') {
-          console.log(values.value['precisions'])
           values.value['precisions'] = values.value['precisions'].split(',')
         }
         await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data.id}/`, values.value)
@@ -292,18 +291,15 @@
   }
   
   const getData = async () => { 
-    console.log('props.data', props.data.data.id)
     try {
         const options = await axios.options(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
         info.value = options.data
-        console.log(info.value)
         const response = await axios.get(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
         dataC.value = response.data.results[0]
         headers.value = normFields(info.value.list_fields)
         Object.keys(info.value.list_fields).forEach((field) => {
           valuesCore.value[field] = dataC.value[field];
         });
-        console.log(valuesCore.value)
     } catch (error) {
         showAlert(error)			
     }

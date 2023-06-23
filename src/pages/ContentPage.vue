@@ -222,7 +222,7 @@
       <div v-for="act in info.actions" class="mr-4">
         <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
       </div>  
-    </div>  
+    </div>    
     <div class="flex justify-center" v-if="tableLoading">
       <v-progress-circular
           :size="70"
@@ -231,10 +231,11 @@
           indeterminate
         ></v-progress-circular>
     </div>  
-    <div class="content-page-table" v-else>
+    <div class="content-page-table relative" v-else>
+      <input type="checkbox" style="position: absolute; top: 20px; left: 15px;" v-model="checkAll" />
       <template v-if="!data.results || data.results.length === 0">
         <div class="text-center">No data available</div>
-      </template>
+      </template>      
       <v-data-table
         v-else
         :loading="true"
@@ -381,6 +382,15 @@
   const actGlobal = ref({})
   const selected = ref({})
   const resources = ref([])
+
+  const checkAll = ref(false)
+
+  watch(checkAll, (val) => {
+    data.value.results.map($ => {
+      selected.value[$.id] = val
+    })
+  })
+
   onBeforeMount(() => {
     pageNum.value = 1
     pageCount.value = 1
