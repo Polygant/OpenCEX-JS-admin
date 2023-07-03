@@ -164,6 +164,17 @@
       <template v-if="props.data.fields[field].attributes.read_only === true">
        
       </template>
+      <template v-else-if="props.data.fields[field].attributes.label === 'User' && type === 'otp_totp_totpdevice_list'">
+        <v-autocomplete
+          label="Users"
+          clearable
+          :items="users"
+          item-title="text"
+          item-value="value"
+          v-model="values[field]"
+          @update:search="fetchUsers"
+        ></v-autocomplete>
+      </template>
       <template v-else-if="props.data.fields[field].attributes.label === 'Links'">
         <v-textarea label="Label" v-model="values[field]">
         </v-textarea>
@@ -245,6 +256,20 @@
   const route = useRoute()
   const param = ref(route.params.page)
   
+  const users = ref([])
+  const chips = ref([])
+  const fetchUsers = async (searchValue) => {
+    users.value = []
+    try {
+      const response = await axios.get(`${apiKey}auth/user/`,{ params: { search: searchValue } })
+      response.data.results.map($ => {
+        users.value.push({value: $.id, text: $.email})
+      })
+    } catch (error) {
+      showAlert(error)    
+    }
+  }
+
   const save = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 
@@ -297,6 +322,8 @@
         const response = await axios.get(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
         dataC.value = response.data.results[0]
         headers.value = normFields(info.value.list_fields)
+        users.value = []
+        await fetchUsers()
         Object.keys(info.value.list_fields).forEach((field) => {
           valuesCore.value[field] = dataC.value[field];
         });
@@ -313,7 +340,7 @@
       getData()
   
   });
-  
+
   const showAlert = (err) => {
     const alertMessage = findErrMessage(err)
     if(alertMessage) {
