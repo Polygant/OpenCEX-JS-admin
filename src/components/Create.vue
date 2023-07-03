@@ -14,6 +14,17 @@
           v-model="values[field]"
         ></v-checkbox>
       </template>
+      <template v-else-if="props.data.fields[field].attributes.label === 'User'">
+        <v-autocomplete
+          label="Users"
+          clearable
+          :items="users"
+          item-title="text"
+          item-value="value"
+          v-model="values[field]"
+          @update:search="fetchUsers"
+        ></v-autocomplete>
+      </template>
       <template v-else-if="props.data.fields[field].type === 'choice'">
         <v-select
           item-title="text"
@@ -74,6 +85,24 @@
   const route = useRoute()
   const param = ref(route.params.page)
 
+  const users = ref([])
+
+  const fetchUsers = async (searchValue) => {
+    users.value = []
+    try {
+      const response = await axios.get(`${apiKey}auth/user/`,{ params: { search: searchValue } })
+      response.data.results.map($ => {
+        users.value.push({value: $.id, text: $.email})
+      })
+    } catch (error) {
+      showAlert(error)    
+    }
+  }
+
+  onMounted(async () => {
+    users.value = []
+    await fetchUsers()
+  });
 
   const save = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
