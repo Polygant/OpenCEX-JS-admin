@@ -156,7 +156,10 @@ const createGroup = async () => {
     )
   })
   let tempUsers = []
-  chips.value.map($ => tempUsers.push($))
+  chips.value.map($ => {
+    if($.value) tempUsers.push($.value) 
+    else tempUsers.push($)
+  })
   let groupInfo = {
     id: props.id,
     name: groupName.value,
