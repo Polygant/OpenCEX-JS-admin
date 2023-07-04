@@ -21,12 +21,12 @@
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.list_fields[field].type === 'choice'">
-            <label>{{ props.data.list_fields[field].attributes.label }}</label>
+            <label>{{ props.data.list_fields[field]?.attributes.label }}</label>
             <v-select
               item-title="text"
               item-value="value"
-              :items="props.data.list_fields[field].attributes.choices"
-              :label="props.data.list_fields[field].attributes.label"
+              :items="props.data.list_fields[field]?.attributes.choices"
+              :label="props.data.list_fields[field]?.attributes.label"
               v-model="values[field]"
             ></v-select>
           </template>
@@ -164,6 +164,17 @@
       <template v-if="props.data.fields[field].attributes.read_only === true">
        
       </template>
+      <template v-else-if="props.data.fields[field].attributes.label === 'User' && type === 'otp_totp_totpdevice_list'">
+        <v-autocomplete
+          label="Users"
+          clearable
+          :items="users"
+          item-title="text"
+          item-value="value"
+          v-model="values[field]"
+          @update:search="fetchUsers"
+        ></v-autocomplete>
+      </template>
       <template v-else-if="props.data.fields[field].attributes.label === 'Links'">
         <v-textarea label="Label" v-model="values[field]">
         </v-textarea>
@@ -176,7 +187,7 @@
         ></v-checkbox>
       </template>
       <template v-else-if="props.data.fields[field].type === 'choice'">
-        <label>{{ props.data.list_fields[field].attributes.label }}</label>
+        <label>{{ props.data.fields[field].attributes.label }}</label>
         <v-select
           item-title="text"
           item-value="value"
@@ -245,12 +256,25 @@
   const route = useRoute()
   const param = ref(route.params.page)
   
+  const users = ref([])
+  const chips = ref([])
+  const fetchUsers = async (searchValue) => {
+    users.value = []
+    try {
+      const response = await axios.get(`${apiKey}auth/user/`,{ params: { search: searchValue } })
+      response.data.results.map($ => {
+        users.value.push({value: $.id, text: $.email})
+      })
+    } catch (error) {
+      showAlert(error)    
+    }
+  }
+
   const save = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 
       try {
         if(values.value['precisions'] !== undefined && typeof values.value['precisions'] === 'string') {
-          console.log(values.value['precisions'])
           values.value['precisions'] = values.value['precisions'].split(',')
         }
         await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${props.data.data.id}/`, values.value)
@@ -292,18 +316,17 @@
   }
   
   const getData = async () => { 
-    console.log('props.data', props.data.data.id)
     try {
         const options = await axios.options(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
         info.value = options.data
-        console.log(info.value)
         const response = await axios.get(`${apiKey}core/profile/?user_id=${props.data.data['id']}`);
         dataC.value = response.data.results[0]
         headers.value = normFields(info.value.list_fields)
+        users.value = []
+        await fetchUsers()
         Object.keys(info.value.list_fields).forEach((field) => {
           valuesCore.value[field] = dataC.value[field];
         });
-        console.log(valuesCore.value)
     } catch (error) {
         showAlert(error)			
     }
@@ -317,7 +340,7 @@
       getData()
   
   });
-  
+
   const showAlert = (err) => {
     const alertMessage = findErrMessage(err)
     if(alertMessage) {
