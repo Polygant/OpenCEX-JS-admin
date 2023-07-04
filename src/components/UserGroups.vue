@@ -155,12 +155,15 @@ const createGroup = async () => {
       }
     )
   })
+  let tempUsers = []
+  chips.value.map($ => tempUsers.push($))
   let groupInfo = {
     id: props.id,
     name: groupName.value,
     permissions: permissionsArr,
-    users: chips.value.map($ => $.value)
+    users: tempUsers
   }
+  console.log(groupInfo)
   try {
     if(props.id !== '')
       await axios.put(`${apiKey}permissions/`, groupInfo)
