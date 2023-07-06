@@ -23,7 +23,7 @@
           </v-list-item>
         </template>
         <template v-else-if="item.divider">
-          <div class="devd cursor-pointer" @click="openMenu(item.dNum)">
+          <div style="display: none !important;" class="devd cursor-pointer" @click="openMenu(item.dNum)">
             {{ deviders[item.dNum] }}
           </div>
         </template>
@@ -80,7 +80,7 @@ const getNavigation = async () => {
         }
       })
       deviders.map($ => {
-        devs.value.push(false)
+        devs.value.push(true)
       })
       console.log(devs)
     } catch (error) {
