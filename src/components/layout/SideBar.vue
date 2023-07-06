@@ -14,23 +14,23 @@
         </v-list>
       </v-menu>
     </div>
-  </v-app-bar>
-
+  </v-app-bar>  
   <v-navigation-drawer permanent>
     <v-list>
       <template v-for="item in navigation">
-        <template v-if="item.icon">
+        <template v-if="item.icon && devs[item['devider']-1]">
           <v-list-item :to="`/page/${ item.link === '/' ? 'dashboard' : item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
           </v-list-item>
         </template>
         <template v-else-if="item.divider">
-          <div class="devd">
+          <div class="devd cursor-pointer" @click="openMenu(item.dNum)">
             {{ deviders[item.dNum] }}
           </div>
         </template>
       </template>
     </v-list>
   </v-navigation-drawer>
+  {{ devs }}
 </template>
 <script setup>
 import axios from '../../plugins/axios';
@@ -63,6 +63,7 @@ const deviders = [
 ]
 const route = useRoute()
 const param = ref(route.path)
+const devs = ref([])
 const getNavigation = async () => {
   if(!window.location.href.includes('/login'))
     try {
@@ -72,16 +73,27 @@ const getNavigation = async () => {
       let d = 0
       navigation.value.map(($, k) => {
         if($.divider) {
-          navigation.value[k]['dNum'] = d
+          navigation.value[k]['dNum'] = d          
           d++
+        } else {
+          navigation.value[k]['devider'] = d
         }
       })
+      deviders.map($ => {
+        devs.value.push(false)
+      })
+      console.log(devs)
     } catch (error) {
       if(error?.response?.data?.type === "authentication_failed" || error?.response?.data?.code?.code === "token_not_valid" || error?.response?.data?.type === "not_authenticated") {
         initRouter.push({name: 'Login'})
       }
     }
 } 
+
+const openMenu = ($) => {
+  devs.value[$] = !devs.value[$]
+  console.log(devs.value)
+}
 
 const getResources = async () => {
   try {
