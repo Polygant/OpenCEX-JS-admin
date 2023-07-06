@@ -18,7 +18,8 @@
   <v-navigation-drawer permanent>
     <v-list>
       <template v-for="item in navigation">
-        <template v-if="item.icon && devs[item['devider']-1]">
+        <!-- <template v-if="item.icon && devs[item['devider']-1]"> -->
+        <template v-if="item.icon">
           <v-list-item :to="`/page/${ item.link === '/' ? 'dashboard' : item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
           </v-list-item>
         </template>
