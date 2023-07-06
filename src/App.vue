@@ -1,8 +1,8 @@
 <template>
   <v-card>
-    <v-layout>
+    <v-layout align-start>
       <SideBar v-if="pageName !=='Login'" />
-      <v-main style="min-height: 100vh">
+      <v-main style="min-height: 100vh; padding-left: 0 !important;">
         <router-view/>
       </v-main>
     </v-layout>
