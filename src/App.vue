@@ -2,7 +2,7 @@
   <v-card>
     <v-layout align-start>
       <SideBar v-if="pageName !=='Login'" />
-      <v-main style="min-height: 100vh; padding-left: 20px !important;">
+      <v-main style="min-height: 100vh;">
         <router-view/>
       </v-main>
     </v-layout>
