@@ -236,7 +236,7 @@
       <template v-if="!data.results || data.results.length === 0">
         <div class="text-center">No data available</div>
       </template>      
-      <v-data-table
+      <v-data-table        
         v-else
         :loading="true"
         :headers="headerShow"
