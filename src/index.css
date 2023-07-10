@@ -3,11 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .v-table__wrapper tr th {
-    background: #590DE5 !important;
-    color: #FFF !important;
-} */
-
 * {
     font-family: 'Roboto',sans-serif;
 }
@@ -15,4 +10,8 @@
 .v-table__wrapper tr td {
     font-size: 14px !important;
     color: rgba(0, 0, 0, 0.87)
+}
+
+body {
+  background: #3B485A;
 }

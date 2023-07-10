@@ -85,6 +85,7 @@ const showAlert = (err) => {
   align-items: center;
   height: 100vh;
   background: #38485C;
+  margin-left: -210px;
 }
 input {
     border: 1px solid #CCC;

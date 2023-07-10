@@ -43,6 +43,15 @@
               v-model="values[field]"
             ></v-checkbox>
           </template>
+          <template v-else-if="props.data.fields[field].attributes.label === 'Pair'">
+            <v-select
+              item-title="text"
+              item-value="value"
+              :items="pairs"
+              :label="props.data.fields[field].attributes.label"
+              v-model="values[field]"
+            ></v-select>
+          </template>
           <template v-else-if="props.data.fields[field].type === 'choice'">
             <v-select
               item-title="text"
@@ -221,6 +230,19 @@ const fetchUsers = async (searchValue) => {
   }
 }
 
+const pairs = ref([])
+
+const fetchPairs = async () => {
+  try {
+    const response = await axios.get(`${apiKey}core/pair/`)
+    response.data.results.map($ => {
+      pairs.value.push({value: $.id, text: $._label})
+    })
+  } catch (error) {
+    console.log(error) 
+  }
+}
+
 const save = async () => {
   let pathSepar = splitAndReplace(removeListSuffix(param.value))
   if(endsWithList(param.value)) 
@@ -250,7 +272,6 @@ const getData = async () => {
     headers.value = normFields(info.value.fields)
     users.value = []
     await fetchUsers()
-    console.log(users)
     Object.keys(info.value.fields).forEach((field) => {
       values.value[field] = dataC.value[field];
     });
@@ -321,6 +342,7 @@ onMounted(() => {
       values.value[field] = props.data.data[field];
     });
     getData()
+    fetchPairs()
   }
 
 });
