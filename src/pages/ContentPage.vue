@@ -720,76 +720,76 @@
   
   </script>
   
-  <style>
-  .content-page-table {
-    overflow-x: scroll;
-    font-size: 11px;
-  }
-  
-  .action-cell {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-  .action-cell>i {
-    margin-right: 10px;
-  }
-  .content-page-table__cell {
-    font-size: 12px;
-  }
-  .checks {
-    width: 20px;
-  }
-  .content-page__search {
-    width: 350px !important;
-    max-width: 350px;
-  }
-  .breadcrumbs {
-    padding: 20px;
-    display: flex;
-  }
-  .breadcrumbs__link {
-    color: #5C92E5;
-    border-bottom: 1px solid #5C92E5;
-    cursor: pointer;
-    display: block;
-    margin-right: 6px;
-  }
-  .content-page__btn {
-    margin-left: 20px;
-  }
-  .v-data-table-footer {
-    display: none;
-  }
-  .filters-block {
-    position: absolute;
-    background: #FFF;
-    padding: 20px;
-    right: 32px;
-    top: 147px;
-    width: 400px;
-    z-index: 2;
-    border: 1px solid #ccc;
-  }
-  .customize-fields {
-    position: absolute;
-    background: #FFF;
-    padding: 20px;
-    left: 32px;
-    top: 45px;
-    min-width: 200px;
-    z-index: 2;
-    border: 1px solid #ccc;
-  }
-  .actions-line {
-    padding: 20px;
-    background: #CCC;
-    margin-top: 10px;
-  }
-  .alert-block {
-    position: fixed !important;
-    bottom: 0 !important;
-    right: 0 !important;
-    width: 520px !important;
-    z-index: 22 !important;
-  }
-  </style>
+<style scoped>
+.content-page-table {
+  overflow-x: scroll;
+  font-size: 11px;
+}
+
+.action-cell {
+  display: flex;
+  flex-wrap: nowrap;
+}
+.action-cell>i {
+  margin-right: 10px;
+}
+.content-page-table__cell {
+  font-size: 12px;
+}
+.checks {
+  width: 20px;
+}
+.content-page__search {
+  width: 350px !important;
+  max-width: 350px;
+}
+.breadcrumbs {
+  padding: 20px;
+  display: flex;
+}
+.breadcrumbs__link {
+  color: #5C92E5;
+  border-bottom: 1px solid #5C92E5;
+  cursor: pointer;
+  display: block;
+  margin-right: 6px;
+}
+.content-page__btn {
+  margin-left: 20px;
+}
+.v-data-table-footer {
+  display: none;
+}
+.filters-block {
+  position: absolute;
+  background: #FFF;
+  padding: 20px;
+  right: 32px;
+  top: 147px;
+  width: 400px;
+  z-index: 2;
+  border: 1px solid #ccc;
+}
+.customize-fields {
+  position: absolute;
+  background: #FFF;
+  padding: 20px;
+  left: 32px;
+  top: 45px;
+  min-width: 200px;
+  z-index: 2;
+  border: 1px solid #ccc;
+}
+.actions-line {
+  padding: 20px;
+  background: #CCC;
+  margin-top: 10px;
+}
+.alert-block {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 520px !important;
+  z-index: 22 !important;
+}
+</style>
