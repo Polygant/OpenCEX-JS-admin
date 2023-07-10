@@ -1,8 +1,8 @@
 <template>
   <v-card>
-    <v-layout>
+    <v-layout align-start>
       <SideBar v-if="pageName !=='Login'" />
-      <v-main style="min-height: 100vh">
+      <v-main style="min-height: 100vh; min-width: calc(100vw - 280px);" :class="{'login': pageName === 'Login'}">
         <router-view/>
       </v-main>
     </v-layout>
@@ -44,5 +44,13 @@ export default {
 </script>
 
 <style scoped>
-
+.v-main {
+  min-width: 100vw !important;
+  padding-left: 270px !important;
+  padding-right: 30px !important;  
+ 
+}
+.v-main.login {
+  background: #3B485A;
+}
 </style>

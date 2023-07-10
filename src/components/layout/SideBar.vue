@@ -18,12 +18,13 @@
   <v-navigation-drawer permanent>
     <v-list>
       <template v-for="item in navigation">
-        <template v-if="item.icon && devs[item['devider']-1]">
+        <!-- <template v-if="item.icon && devs[item['devider']-1]"> -->
+        <template v-if="item.icon">
           <v-list-item :to="`/page/${ item.link === '/' ? 'dashboard' : item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">
           </v-list-item>
         </template>
         <template v-else-if="item.divider">
-          <div class="devd cursor-pointer" @click="openMenu(item.dNum)">
+          <div style="display: none !important;" class="devd cursor-pointer" @click="openMenu(item.dNum)">
             {{ deviders[item.dNum] }}
           </div>
         </template>
@@ -80,7 +81,7 @@ const getNavigation = async () => {
         }
       })
       deviders.map($ => {
-        devs.value.push(false)
+        devs.value.push(true)
       })
       console.log(devs)
     } catch (error) {
