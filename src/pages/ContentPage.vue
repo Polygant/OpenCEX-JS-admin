@@ -246,7 +246,7 @@
         disable-pagination    
       >
       <template v-slot:item="{ item }">
-        <tr>
+        <tr @click="() => selectEditField(item.columns.id)">
           <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">
             <div v-if="i.key === 'links'">
               <div v-for="it in getObj(item.columns[i.key])">
@@ -274,34 +274,16 @@
               <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
               <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
             </div>
-            <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
-            <div class="hidden">
-              <template v-if="info.list_fields[i.key]?.attributes.read_only !== true && info.list_fields[i.key]?.type !== 'datetime' && i.key !== 'control' && i.key !== 'actions' && info.list_fields[i.key]?.type !== 'choice'">
-                <template v-if="info.list_fields[i.key]?.type === 'boolean'">
-                  <v-checkbox
-                    @input="(event) => selectEditField(event, i.key)"
-                    :data-field="i.key"
-                  ></v-checkbox>
-                </template>           
-                <!-- <template v-else-if="info.list_fields[i.key]?.type === 'choice'">              
-                  <v-select
-                    item-title="text"
-                    item-value="value"
-                    :items="info.list_fields[i.key]?.attributes.choices"
-                    :label="info.list_fields[i.key]?.attributes.label"
-                    @update:modelValue="(event) => selectEditField(event, i.key)"
-                    :value="item.columns[i.key]"
-                  ></v-select>
-                </template> -->
-                <template v-else>
-                  <v-text-field 
-                    :hint="info.list_fields[i.key]?.attributes.hint"
-                    @input="(event) => selectEditField(event, i.key)"
-                    :value="item.columns[i.key]"
-                  ></v-text-field>
-                </template>
-              </template>
-            </div>
+            <div v-else class="content-page-table__cell">
+              <div class="content-page-table__cell-edit" v-if="editionId === item.columns.id && i.key !== 'id'">
+                <input class="edit-input" v-model="editingFields[i.key]" />
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+              </div>
+              <div class="content-page-table__cell-value" v-if="editionId !== item.columns.id || i.key === 'id'">
+                {{ item.columns[i.key] }}
+              </div>
+            </div>            
           </td>
         </tr>
       </template>
@@ -383,6 +365,9 @@
   const selected = ref({})
   const resources = ref([])
 
+  const editingItem = ref({})
+  const editingFields = ref({})
+  const editionId = ref("")
   const checkAll = ref(false)
 
   watch(checkAll, (val) => {
@@ -429,10 +414,6 @@
         alertText.value = ''
       }, 3000)
     }
-  }
-  
-  const selectEditField = (target, elem) => {
-    console.log(target, elem)
   }
   
   const getChooseValue = (field, value) => {
@@ -700,7 +681,59 @@
         showAlert(error)
       }
   }
-  
+
+///// Edition in live mode
+
+  const cancelLifeSaving = () => {
+    editionId.value = ""
+  }
+
+
+  const saveLifeMode = async () => {
+    console.log(editingItem.value)
+    let pathSepar = splitAndReplace(removeListSuffix(param.value))
+    console.log(pathSepar)
+    if(endsWithList(param.value)) {
+      try {
+        console.log(editingFields.value)
+        const values = {} 
+        Object.keys(editingItem.value.list_fields).forEach((field) => {
+          values[field] = editingFields.value[field];
+        });
+        await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${editionId.value}/`, values)
+        location.reload()
+      } catch (error) {
+        showAlert(error)      
+      }
+    }
+  }
+
+  const selectEditField = async (elem) => {
+    editingItem.value = {}
+    editingFields.value = {}
+    editionId.value = elem
+    await getEditDataInField(elem)
+  }
+
+  const getEditDataInField = async (id) => {
+    let pathSepar = splitAndReplace(removeListSuffix(param.value))
+    if(endsWithList(param.value)) 
+      try {
+        const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
+        editingItem.value = {
+          list_fields: info.value.list_fields, 
+          fields: info.value.fields, 
+          data: response.data 
+        }
+        editingFields.value = editingItem.value.data
+        console.log(editingItem.value)
+      } catch (error) {      
+        showAlert(error)
+      }
+  }
+
+/////
+
   const deleteItem = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 
@@ -735,6 +768,20 @@
 }
 .content-page-table__cell {
   font-size: 12px;
+  position: relative;
+}
+.content-page-table__cell-edit {
+  /* position: absolute; */
+  top: 0;
+  width: 133px;
+  left: -17px;
+}
+.content-page-table__cell-edit input {
+  background: #fff;
+  max-width: 90px;
+  text-align: center;
+  min-width: 0;
+  width: auto;
 }
 .checks {
   width: 20px;
@@ -791,5 +838,8 @@
   right: 0 !important;
   width: 520px !important;
   z-index: 22 !important;
+}
+.edit-input {
+  border: 1px solid #ccc;
 }
 </style>
