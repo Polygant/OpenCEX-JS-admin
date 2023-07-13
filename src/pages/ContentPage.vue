@@ -1,4 +1,4 @@
-<template>
+<template>  
   <div class="breadcrumbs">
     <div class="breadcrumbs__link" @click="router.push({path: `/${baseUrl}/dashboard`})">Home</div>
      /
@@ -246,8 +246,8 @@
         disable-pagination    
       >
       <template v-slot:item="{ item }">
-        <tr @click="() => selectEditField(item.columns.id)">
-          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">
+        <tr>
+          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}" @click="() => selectEditField(item.columns.id, i.key)">
             <div v-if="i.key === 'links'">
               <div v-for="it in getObj(item.columns[i.key])">
                 {{ it.href }} - {{ it.title }}
@@ -275,12 +275,12 @@
               <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
             </div>
             <div v-else class="content-page-table__cell">
-              <div class="content-page-table__cell-edit" v-if="editionId === item.columns.id && i.key !== 'id'">
+              <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
                 <input class="edit-input" v-model="editingFields[i.key]" />
                 <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
                 <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
               </div>
-              <div class="content-page-table__cell-value" v-if="editionId !== item.columns.id || i.key === 'id'">
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
                 {{ item.columns[i.key] }}
               </div>
             </div>            
@@ -369,6 +369,7 @@
   const editingFields = ref({})
   const editionId = ref("")
   const checkAll = ref(false)
+  const editingKey = ref("")
 
   watch(checkAll, (val) => {
     data.value.results.map($ => {
@@ -684,6 +685,56 @@
 
 ///// Edition in live mode
 
+  const isPageEditable = computed(() => {
+    const notEditable = [
+      "admin_rest_allordernobot_list",
+      "admin_rest_allorder_list",
+      "admin_rest_balance_list",
+      "admin_rest_match_list",
+      "admin_rest_transaction_list",
+      "admin_rest_userdailystat_list",
+      "seo_coinstaticpage_list",
+      "seo_coinstaticsubpage_list",
+      "notifications_mailing_list",
+      "core_withdrawaluserlimit_list",
+      "cryptocoins_depositswithdrawalsstats_list",
+      "core_inoutsstats_list",
+      "core_accesslog_list",
+      "core_userwallet_list",
+      "core_difbalance_list",
+      "cryptocoins_btcwithdrawalapprove_list",
+      "cryptocoins_ethwithdrawalapprove_list",
+      "cryptocoins_trxwithdrawalapprove_list",
+      "cryptocoins_bnbwithdrawalapprove_list",
+      "core_wallettransactions_list",
+      "core_paygatetopup_list",
+      "bots_botconfig_list",
+      "otp_totp_totpdevice_list",
+      "cryptocoins_scoringsettings_list",
+      "cryptocoins_transactioninputscore_list",
+      "admin_logentry_list",
+      "core_settings_list",
+      "core_smsconfirmationhistory_list",
+    ]
+    if(notEditable.includes(param.value)) return false
+    return true
+  })
+
+  const auth_user_list = ["email", "is_staff", "is_superuser", "kyc", "kyc_reject_type", "withdrawals_count", "orders_count"]
+  const core_userkyc_list = ["forced_approve"]
+  const core_pairsettings_list = ["pair"]
+  const admin_rest_withdrawalrequest_list = ["blockchain", "amount", "details", "sci_gate", "txid", "is_freezed"]
+
+
+  const ifFieldCanEdit = (key) => {
+    if(key === 'id') return false
+    if(editingKey.value !== key) return false
+    if(param.value === "auth_user_list") return !auth_user_list.includes(key)
+    if(param.value === "core_userkyc_list") return core_userkyc_list.includes(key)
+    if(param.value === "core_pairsettings_list") return !core_pairsettings_list.includes(key)
+    if(param.value === "admin_rest_withdrawalrequest_list") return !admin_rest_withdrawalrequest_list.includes(key)
+  }
+
   const cancelLifeSaving = () => {
     editionId.value = ""
   }
@@ -708,10 +759,11 @@
     }
   }
 
-  const selectEditField = async (elem) => {
+  const selectEditField = async (elem, key) => {
     editingItem.value = {}
     editingFields.value = {}
     editionId.value = elem
+    editingKey.value = key
     await getEditDataInField(elem)
   }
 
@@ -726,7 +778,7 @@
           data: response.data 
         }
         editingFields.value = editingItem.value.data
-        console.log(editingItem.value)
+        console.log('2', editingItem.value)
       } catch (error) {      
         showAlert(error)
       }
