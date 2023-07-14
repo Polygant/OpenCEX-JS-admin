@@ -274,6 +274,17 @@
               <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
               <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
             </div>
+            <template v-else-if="info.list_fields[i.key]?.type === 'boolean'">
+              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
+                <!-- <input class="edit-input" v-model="editingFields[i.key]" type="checkbox" /> -->
+                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+              </div>
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
+                {{ item.columns[i.key] }}
+              </div>
+            </template>
             <div v-else class="content-page-table__cell">
               <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
                 <input class="edit-input" v-model="editingFields[i.key]" />
@@ -394,6 +405,7 @@
   watch(
     () => route.params.page,
     (newValue) => {
+        cancelLifeSaving()
         selected.value = {}
         param.value = newValue;
         getData(newValue)
@@ -733,12 +745,15 @@
     if(param.value === "core_userkyc_list") return core_userkyc_list.includes(key)
     if(param.value === "core_pairsettings_list") return !core_pairsettings_list.includes(key)
     if(param.value === "admin_rest_withdrawalrequest_list") return !admin_rest_withdrawalrequest_list.includes(key)
+    return true
   }
 
   const cancelLifeSaving = () => {
     editionId.value = ""
+    editingItem.value = {}
+    editingFields.value = {}
+    editingKey.value = ""
   }
-
 
   const saveLifeMode = async () => {
     console.log(editingItem.value)
@@ -760,11 +775,13 @@
   }
 
   const selectEditField = async (elem, key) => {
-    editingItem.value = {}
-    editingFields.value = {}
-    editionId.value = elem
-    editingKey.value = key
-    await getEditDataInField(elem)
+    if(!editionId.value) {
+      editingItem.value = {}
+      editingFields.value = {}
+      editionId.value = elem
+      editingKey.value = key
+      await getEditDataInField(elem)
+    }
   }
 
   const getEditDataInField = async (id) => {
@@ -778,7 +795,6 @@
           data: response.data 
         }
         editingFields.value = editingItem.value.data
-        console.log('2', editingItem.value)
       } catch (error) {      
         showAlert(error)
       }
