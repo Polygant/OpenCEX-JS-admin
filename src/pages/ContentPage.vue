@@ -1,5 +1,5 @@
 <template>  
-  <div class="breadcrumbs">
+  <div class="breadcrumbs"  v-click-out-side="() => console.log(0)">
     <div class="breadcrumbs__link" @click="router.push({path: `/${baseUrl}/dashboard`})">Home</div>
      /
     {{ info.name }}
@@ -266,7 +266,7 @@
               {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '-' }}
             </template>
             <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
-              {{ getChooseValue(i.key, item.columns[i.key]) }}
+              {{ getChooseValue(i.key, item.columns[i.key]) }}              
             </template>
             <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
               <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
@@ -285,8 +285,8 @@
                 {{ item.columns[i.key] }}
               </div>
             </template>
-            <div v-else class="content-page-table__cell">
-              <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
+            <div v-else class="content-page-table__cell" v-click-out-side="cancelLifeSaving">
+              <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
                 <input class="edit-input" v-model="editingFields[i.key]" />
                 <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
                 <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
@@ -334,6 +334,15 @@
   import { splitAndReplace, endsWithList, removeListSuffix, findErrMessage } from "@/plugins/helpers"
   import moment from 'moment'
   import Dashboard from '@/components/Dashboard.vue'
+  import { onClickOutside } from '@vueuse/core'
+
+  const target = ref(null)
+  onClickOutside(target, (event) => {
+    if(event.srcElement.localName !== "input" && event.srcElement.localName !== "i") {
+      cancelLifeSaving()
+    }
+  })
+
   const nav = useNavStore()
   const alert = ref(false)
   const alertText = ref('')
@@ -433,7 +442,7 @@
     let s = info.value.list_fields[field]?.attributes?.choices?.filter(i => i.value === value)?.[0]?.["text"]
     return s
   }
-  
+
   const clearFilter = () => {
     Object.keys(filters.value).map($ => {
       filters.value[$]['on'] = ""
@@ -781,6 +790,8 @@
       editionId.value = elem
       editingKey.value = key
       await getEditDataInField(elem)
+    // } else {
+      // cancelLifeSaving()
     }
   }
 
