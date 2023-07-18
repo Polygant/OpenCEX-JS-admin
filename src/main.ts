@@ -8,7 +8,6 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createPinia } from 'pinia'
-import vClickOutside from "click-outside-vue3"
 import { createHead } from "@vueuse/head"
 
 const pinia = createPinia()
@@ -23,7 +22,6 @@ const head = createHead()
 
 app.use(vuetify)
 app.use(initRouter)
-app.use(vClickOutside)
 app.use(pinia)
 app.use(head)
 // eslint-disable-next-line vue/multi-word-component-names
