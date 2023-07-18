@@ -265,14 +265,42 @@
             <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
               {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '-' }}
             </template>
+            <template v-else-if="info.list_fields[i.key]?.source === 'two_fa'">
+              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
+                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" @input="updateBoolStringValue" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+              </div>
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
+                {{ item.columns[i.key] }}
+              </div>
+            </template>
             <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
               {{ getChooseValue(i.key, item.columns[i.key]) }}              
             </template>
             <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
-              <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
-              <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
-              <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
-              <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
+              <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 5px;">
+                <v-select
+                  :items="actions"
+                  label="Action"
+                  style="min-width: 200px;"
+                >
+                  <template v-slot:selection="d">
+                      Select action
+                  </template>
+                  <template v-slot:item="d">
+                    <v-list-item @click="doActWithId(d.item.raw.value, item.columns['id'])">
+                      <v-list-item-title>{{ d.item.raw.text }}</v-list-item-title>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </div>
+              <div class="pt-4">
+                <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
+                <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
+                <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
+                <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
+              </div>
             </div>
             <template v-else-if="info.list_fields[i.key]?.type === 'boolean'">
               <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
@@ -391,6 +419,17 @@
   const checkAll = ref(false)
   const editingKey = ref("")
 
+  const actions = computed(() => {
+    const res = []
+    info.value.actions.map(act => {
+      res.push({
+        text: act.name,
+        value: act
+      })
+    })
+    return res
+  })
+
   watch(checkAll, (val) => {
     data.value.results.map($ => {
       selected.value[$.id] = val
@@ -464,12 +503,34 @@
     })
     actGlobalDialog.value = true
   }
+
+  const doActWithId = async (actObj, id) => {
+    console.log(actObj, id)
+    selected.value = {}
+    selected.value[id] = true    
+    act.value = actObj
+    act.value.fields.map($ => {
+      actFields.value[$.name] = $
+    })
+    actDialog.value = true
+  }
+  
+  const doGlobalActWithId = async (actObj, id) => {
+    selected.value = {}
+    selected.value[id] = true
+    actGlobal.value = actObj
+    actGlobal.value.fields.map($ => {
+      actGlobalFields.value[$.name] = $
+    })
+    actGlobalDialog.value = true
+  }
   
   const submitAct = async () => {
     let ids = []
     Object.keys(selected.value).map($ => {
       if(selected.value[$]) ids.push(parseInt($))
     })
+    console.log(ids)
     try {
       let resObject = {}
       if(Object.keys(actFields.value).length > 0) {
