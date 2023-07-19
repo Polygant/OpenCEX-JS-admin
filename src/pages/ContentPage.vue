@@ -1,5 +1,5 @@
 <template>  
-  <div class="breadcrumbs"  v-click-out-side="() => console.log(0)">
+  <div class="breadcrumbs">
     <div class="breadcrumbs__link" @click="router.push({path: `/${baseUrl}/dashboard`})">Home</div>
      /
     {{ info.name }}
@@ -147,7 +147,7 @@
           class="content-page__search"
         >
         </v-text-field>  
-        <div class="relative pt-3" v-click-outside-element="() => customizeFields = false">
+        <div class="relative pt-3" ref="filterBtn">
           <div class="customize-fields" v-if="customizeFields">
             <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
               <v-checkbox
@@ -162,7 +162,7 @@
       </div>
       <div class="flex justify-end p-8">    
         <div class="flex">
-          <div v-click-outside-element="() => filterShow = false">
+          <div ref="filterBtn">
             <div v-if="filterShow" class="filters-block">
               <div v-for="filter in Object.keys(filters)" :key="filter">
                 <template v-if="filters[filter].type !== 'datetime'">
@@ -278,6 +278,9 @@
             <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
               {{ getChooseValue(i.key, item.columns[i.key]) }}              
             </template>
+            <template v-else-if="info.list_fields[i.key]?.source === 'pair'">
+              {{ item.columns[i.key].value }}
+            </template>
             <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
               <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 28px;">
                 <v-select
@@ -365,10 +368,16 @@
   import { onClickOutside } from '@vueuse/core'
 
   const target = ref(null)
+  const filterBtn = ref(null)
   onClickOutside(target, (event) => {
     if(event.srcElement.localName !== "input" && event.srcElement.localName !== "i") {
       cancelLifeSaving()
     }
+  })
+
+  onClickOutside(filterBtn, (event) => {
+    customizeFields.value = false
+    filterShow.value = false
   })
 
   const nav = useNavStore()
