@@ -269,7 +269,7 @@
               <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
                 <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" @input="updateBoolStringValue" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
                 <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
               </div>
               <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
                 {{ item.columns[i.key] }}
@@ -279,7 +279,7 @@
               {{ getChooseValue(i.key, item.columns[i.key]) }}              
             </template>
             <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
-              <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 5px;">
+              <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 28px;">
                 <v-select
                   :items="actions"
                   label="Action"
@@ -295,7 +295,7 @@
                   </template>
                 </v-select>
               </div>
-              <div class="pt-4">
+              <div class="action-icons">
                 <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
                 <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
                 <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
@@ -307,7 +307,7 @@
                 <!-- <input class="edit-input" v-model="editingFields[i.key]" type="checkbox" /> -->
                 <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
                 <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
               </div>
               <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
                 {{ item.columns[i.key] }}
@@ -317,7 +317,7 @@
               <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
                 <input class="edit-input" v-model="editingFields[i.key]" />
                 <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
               </div>
               <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
                 {{ item.columns[i.key] }}
@@ -981,5 +981,10 @@
 }
 .edit-input {
   border: 1px solid #ccc;
+}
+.action-icons {
+  display: flex;
+  align-items: center;
+  min-width: 100px;
 }
 </style>
