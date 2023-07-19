@@ -19,7 +19,11 @@
     <v-list>
       <template v-for="item in navigation">        
         <!-- <template v-if="item.icon && devs[item['devider']-1]"> -->
-        <template v-if="item.icon && devs[item.head]">
+        <template v-if="item.text === 'Dashboard'">
+          <v-list-item :to="`/page/${ item.link === '/' ? 'dashboard' : item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">            
+          </v-list-item>
+        </template>
+        <template v-else-if="item.icon && devs[item.head]">
           <v-list-item :to="`/page/${ item.link === '/' ? 'dashboard' : item.link.name}`" :title="item.text" :prepend-icon="item.icon" :value="item.text">            
           </v-list-item>
         </template>
@@ -105,7 +109,6 @@ onBeforeMount(() => {
 }
 .devd {
   font-weight: bold;
-  margin-top: 5px;
   padding: 5px 5px 5px;
   background: #ccc;
   text-align: center;
