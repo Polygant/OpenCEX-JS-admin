@@ -46,7 +46,7 @@ export default {
 <style scoped>
 .v-main {
   min-width: 100vw !important;
-  padding-left: 226px !important;
+  padding-left: 258px !important;
   padding-right: 30px !important;  
  
 }

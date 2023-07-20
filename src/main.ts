@@ -8,7 +8,6 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createPinia } from 'pinia'
-import vueClickOutsideElement from 'vue-click-outside-element'
 import { createHead } from "@vueuse/head"
 
 const pinia = createPinia()
@@ -22,7 +21,6 @@ export const app = createApp(App);
 const head = createHead()
 
 app.use(vuetify)
-app.use(vueClickOutsideElement)
 app.use(initRouter)
 app.use(pinia)
 app.use(head)
