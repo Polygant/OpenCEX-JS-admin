@@ -259,6 +259,9 @@
             <div v-else-if="i.key === 'user' && typeof item.columns[i.key] === 'object'" class="content-page-table__cell">
               {{ item.columns[i.key]?.value  }}
             </div>
+            <div v-else-if="i.key === 'withdrawals_count'" class="content-page-table__cell">
+              <a :href="`/${baseUrl}/page/admin_rest_withdrawalrequest_list`">{{ item.columns[i.key] }}</a>
+            </div>
             <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
               <img width="100" :src="item.columns[i.key]" />
             </div>
@@ -645,6 +648,7 @@
   })
   
   const filterStr = computed(() => {
+    console.log("filters.value",filters.value)
     let str = ""
     Object.keys(filters.value).map($ => {
       if(filters.value[$]?.on !== "" && filters.value[$]?.on !== undefined) {
