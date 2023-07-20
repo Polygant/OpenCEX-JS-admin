@@ -1,4 +1,4 @@
-<template>
+<template>  
   <div class="breadcrumbs">
     <div class="breadcrumbs__link" @click="router.push({path: `/${baseUrl}/dashboard`})">Home</div>
      /
@@ -147,7 +147,7 @@
           class="content-page__search"
         >
         </v-text-field>  
-        <div class="relative pt-3" v-click-outside-element="() => customizeFields = false">
+        <div class="relative pt-3" ref="filterBtn">
           <div class="customize-fields" v-if="customizeFields">
             <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
               <v-checkbox
@@ -162,7 +162,7 @@
       </div>
       <div class="flex justify-end p-8">    
         <div class="flex">
-          <div v-click-outside-element="() => filterShow = false">
+          <div ref="filterBtn">
             <div v-if="filterShow" class="filters-block">
               <div v-for="filter in Object.keys(filters)" :key="filter">
                 <template v-if="filters[filter].type !== 'datetime'">
@@ -247,7 +247,7 @@
       >
       <template v-slot:item="{ item }">
         <tr>
-          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}">
+          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}" @click="() => selectEditField(item.columns.id, i.key)">
             <div v-if="i.key === 'links'">
               <div v-for="it in getObj(item.columns[i.key])">
                 {{ it.href }} - {{ it.title }}
@@ -265,43 +265,67 @@
             <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
               {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '-' }}
             </template>
+            <template v-else-if="info.list_fields[i.key]?.source === 'two_fa'">
+              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
+                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" @input="updateBoolStringValue" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+              </div>
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
+                {{ item.columns[i.key] }}
+              </div>
+            </template>
             <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
-              {{ getChooseValue(i.key, item.columns[i.key]) }}
+              {{ getChooseValue(i.key, item.columns[i.key]) }}              
+            </template>
+            <template v-else-if="info.list_fields[i.key]?.source === 'pair'">
+              {{ item.columns[i.key].value }}
             </template>
             <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
-              <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
-              <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
-              <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
-              <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
+              <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 28px;">
+                <v-select
+                  :items="actions"
+                  label="Action"
+                  style="min-width: 200px;"
+                >
+                  <template v-slot:selection="d">
+                      Select action
+                  </template>
+                  <template v-slot:item="d">
+                    <v-list-item @click="doActWithId(d.item.raw.value, item.columns['id'])">
+                      <v-list-item-title>{{ d.item.raw.text }}</v-list-item-title>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </div>
+              <div class="action-icons">
+                <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
+                <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
+                <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
+                <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
+              </div>
             </div>
-            <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
-            <div class="hidden">
-              <template v-if="info.list_fields[i.key]?.attributes.read_only !== true && info.list_fields[i.key]?.type !== 'datetime' && i.key !== 'control' && i.key !== 'actions' && info.list_fields[i.key]?.type !== 'choice'">
-                <template v-if="info.list_fields[i.key]?.type === 'boolean'">
-                  <v-checkbox
-                    @input="(event) => selectEditField(event, i.key)"
-                    :data-field="i.key"
-                  ></v-checkbox>
-                </template>           
-                <!-- <template v-else-if="info.list_fields[i.key]?.type === 'choice'">              
-                  <v-select
-                    item-title="text"
-                    item-value="value"
-                    :items="info.list_fields[i.key]?.attributes.choices"
-                    :label="info.list_fields[i.key]?.attributes.label"
-                    @update:modelValue="(event) => selectEditField(event, i.key)"
-                    :value="item.columns[i.key]"
-                  ></v-select>
-                </template> -->
-                <template v-else>
-                  <v-text-field 
-                    :hint="info.list_fields[i.key]?.attributes.hint"
-                    @input="(event) => selectEditField(event, i.key)"
-                    :value="item.columns[i.key]"
-                  ></v-text-field>
-                </template>
-              </template>
-            </div>
+            <template v-else-if="info.list_fields[i.key]?.type === 'boolean'">
+              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
+                <!-- <input class="edit-input" v-model="editingFields[i.key]" type="checkbox" /> -->
+                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+              </div>
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
+                {{ item.columns[i.key] }}
+              </div>
+            </template>
+            <div v-else class="content-page-table__cell" v-click-out-side="cancelLifeSaving">
+              <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
+                <input class="edit-input" v-model="editingFields[i.key]" />
+                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+              </div>
+              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
+                {{ item.columns[i.key] }}
+              </div>
+            </div>            
           </td>
         </tr>
       </template>
@@ -341,6 +365,21 @@
   import { splitAndReplace, endsWithList, removeListSuffix, findErrMessage } from "@/plugins/helpers"
   import moment from 'moment'
   import Dashboard from '@/components/Dashboard.vue'
+  import { onClickOutside } from '@vueuse/core'
+
+  const target = ref(null)
+  const filterBtn = ref(null)
+  onClickOutside(target, (event) => {
+    if(event.srcElement.localName !== "input" && event.srcElement.localName !== "i") {
+      cancelLifeSaving()
+    }
+  })
+
+  onClickOutside(filterBtn, (event) => {
+    customizeFields.value = false
+    filterShow.value = false
+  })
+
   const nav = useNavStore()
   const alert = ref(false)
   const alertText = ref('')
@@ -383,7 +422,22 @@
   const selected = ref({})
   const resources = ref([])
 
+  const editingItem = ref({})
+  const editingFields = ref({})
+  const editionId = ref("")
   const checkAll = ref(false)
+  const editingKey = ref("")
+
+  const actions = computed(() => {
+    const res = []
+    info.value.actions.map(act => {
+      res.push({
+        text: act.name,
+        value: act
+      })
+    })
+    return res
+  })
 
   watch(checkAll, (val) => {
     data.value.results.map($ => {
@@ -408,6 +462,7 @@
   watch(
     () => route.params.page,
     (newValue) => {
+        cancelLifeSaving()
         selected.value = {}
         param.value = newValue;
         getData(newValue)
@@ -431,15 +486,11 @@
     }
   }
   
-  const selectEditField = (target, elem) => {
-    console.log(target, elem)
-  }
-  
   const getChooseValue = (field, value) => {
     let s = info.value.list_fields[field]?.attributes?.choices?.filter(i => i.value === value)?.[0]?.["text"]
     return s
   }
-  
+
   const clearFilter = () => {
     Object.keys(filters.value).map($ => {
       filters.value[$]['on'] = ""
@@ -461,12 +512,34 @@
     })
     actGlobalDialog.value = true
   }
+
+  const doActWithId = async (actObj, id) => {
+    console.log(actObj, id)
+    selected.value = {}
+    selected.value[id] = true    
+    act.value = actObj
+    act.value.fields.map($ => {
+      actFields.value[$.name] = $
+    })
+    actDialog.value = true
+  }
+  
+  const doGlobalActWithId = async (actObj, id) => {
+    selected.value = {}
+    selected.value[id] = true
+    actGlobal.value = actObj
+    actGlobal.value.fields.map($ => {
+      actGlobalFields.value[$.name] = $
+    })
+    actGlobalDialog.value = true
+  }
   
   const submitAct = async () => {
     let ids = []
     Object.keys(selected.value).map($ => {
       if(selected.value[$]) ids.push(parseInt($))
     })
+    console.log(ids)
     try {
       let resObject = {}
       if(Object.keys(actFields.value).length > 0) {
@@ -700,7 +773,116 @@
         showAlert(error)
       }
   }
-  
+
+///// Edition in live mode
+
+  const isPageEditable = computed(() => {
+    const notEditable = [
+      "admin_rest_allordernobot_list",
+      "admin_rest_allorder_list",
+      "admin_rest_balance_list",
+      "admin_rest_match_list",
+      "admin_rest_transaction_list",
+      "admin_rest_userdailystat_list",
+      "seo_coinstaticpage_list",
+      "seo_coinstaticsubpage_list",
+      "notifications_mailing_list",
+      "core_withdrawaluserlimit_list",
+      "cryptocoins_depositswithdrawalsstats_list",
+      "core_inoutsstats_list",
+      "core_accesslog_list",
+      "core_userwallet_list",
+      "core_difbalance_list",
+      "cryptocoins_btcwithdrawalapprove_list",
+      "cryptocoins_ethwithdrawalapprove_list",
+      "cryptocoins_trxwithdrawalapprove_list",
+      "cryptocoins_bnbwithdrawalapprove_list",
+      "core_wallettransactions_list",
+      "core_paygatetopup_list",
+      "bots_botconfig_list",
+      "otp_totp_totpdevice_list",
+      "cryptocoins_scoringsettings_list",
+      "cryptocoins_transactioninputscore_list",
+      "admin_logentry_list",
+      "core_settings_list",
+      "core_smsconfirmationhistory_list",
+    ]
+    if(notEditable.includes(param.value)) return false
+    return true
+  })
+
+  const auth_user_list = ["email", "is_staff", "is_superuser", "kyc", "kyc_reject_type", "withdrawals_count", "orders_count"]
+  const core_userkyc_list = ["forced_approve"]
+  const core_pairsettings_list = ["pair"]
+  const admin_rest_withdrawalrequest_list = ["blockchain", "amount", "details", "sci_gate", "txid", "is_freezed"]
+
+
+  const ifFieldCanEdit = (key) => {
+    if(key === 'id') return false
+    if(editingKey.value !== key) return false
+    if(param.value === "auth_user_list") return !auth_user_list.includes(key)
+    if(param.value === "core_userkyc_list") return core_userkyc_list.includes(key)
+    if(param.value === "core_pairsettings_list") return !core_pairsettings_list.includes(key)
+    if(param.value === "admin_rest_withdrawalrequest_list") return !admin_rest_withdrawalrequest_list.includes(key)
+    return true
+  }
+
+  const cancelLifeSaving = () => {
+    editionId.value = ""
+    editingItem.value = {}
+    editingFields.value = {}
+    editingKey.value = ""
+  }
+
+  const saveLifeMode = async () => {
+    console.log(editingItem.value)
+    let pathSepar = splitAndReplace(removeListSuffix(param.value))
+    console.log(pathSepar)
+    if(endsWithList(param.value)) {
+      try {
+        console.log(editingFields.value)
+        const values = {} 
+        Object.keys(editingItem.value.list_fields).forEach((field) => {
+          values[field] = editingFields.value[field];
+        });
+        await axios.patch(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${editionId.value}/`, values)
+        location.reload()
+      } catch (error) {
+        showAlert(error)      
+      }
+    }
+  }
+
+  const selectEditField = async (elem, key) => {
+    if(!editionId.value) {
+      editingItem.value = {}
+      editingFields.value = {}
+      editionId.value = elem
+      editingKey.value = key
+      await getEditDataInField(elem)
+    // } else {
+      // cancelLifeSaving()
+    }
+  }
+
+  const getEditDataInField = async (id) => {
+    let pathSepar = splitAndReplace(removeListSuffix(param.value))
+    if(endsWithList(param.value)) 
+      try {
+        const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
+        editingItem.value = {
+          list_fields: info.value.list_fields, 
+          fields: info.value.fields, 
+          data: response.data 
+        }
+        editingFields.value = editingItem.value.data
+      } catch (error) {      
+        showAlert(error)
+      }
+  }
+
+/////
+
   const deleteItem = async () => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 
@@ -735,6 +917,20 @@
 }
 .content-page-table__cell {
   font-size: 12px;
+  position: relative;
+}
+.content-page-table__cell-edit {
+  /* position: absolute; */
+  top: 0;
+  width: 133px;
+  left: -17px;
+}
+.content-page-table__cell-edit input {
+  background: #fff;
+  max-width: 90px;
+  text-align: center;
+  min-width: 0;
+  width: auto;
 }
 .checks {
   width: 20px;
@@ -791,5 +987,13 @@
   right: 0 !important;
   width: 520px !important;
   z-index: 22 !important;
+}
+.edit-input {
+  border: 1px solid #ccc;
+}
+.action-icons {
+  display: flex;
+  align-items: center;
+  min-width: 100px;
 }
 </style>

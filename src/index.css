@@ -15,3 +15,10 @@
 body {
   background: #3B485A;
 }
+
+
+.action-cell .v-input__control .v-field__field .v-field__input,
+.action-cell .v-input__control .v-field__field {
+  height: 35px !important;
+  margin-top: -7px !important;
+}
