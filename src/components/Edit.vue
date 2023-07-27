@@ -42,8 +42,6 @@
           </template>
         </div>
         <v-btn color="primary" block @click="save" variant="tonal">Save</v-btn>
-      </div>
-      <div class="flex justify-center pb-6">
         <v-btn color="primary" variant="tonal" @click="openEditBlock = false">Close</v-btn>
       </div>
     </div>
@@ -81,8 +79,6 @@
           </template>
         </div>
         <v-btn color="primary" block @click="saveCore" variant="tonal">Save</v-btn>
-      </div>
-      <div class="flex justify-center pb-6">
         <v-btn color="primary" variant="tonal" @click="openEditCoreBlock = false">Close</v-btn>
       </div>
     </div>
@@ -180,7 +176,6 @@
         </v-textarea>
       </template>
       <template v-else-if="props.data.fields[field].type === 'boolean'">
-        {{ values[field] }}
         <v-checkbox
           :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
@@ -361,7 +356,7 @@
     margin: 0 auto
   }
   .detail-data-item {
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
   .hidden {
     display: none;
@@ -373,4 +368,9 @@
     width: 520px !important;
     z-index: 22 !important;
   }
+  .v-input__details {
+    min-height: 0;
+    padding-top: 0;
+  }
+  
   </style>
