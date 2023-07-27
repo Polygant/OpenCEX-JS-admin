@@ -11,7 +11,7 @@
     <v-card prepend-icon="mdi-home">
       <Show :data="showData" />
       <v-card-actions>
-        <v-btn color="primary" block variant="tonal" @click="infoDialog = false">Close</v-btn>
+        <v-btn color="primary" variant="tonal" @click="infoDialog = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
