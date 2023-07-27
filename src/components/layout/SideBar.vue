@@ -56,7 +56,9 @@ const logout = () => {
 }
 const route = useRoute()
 const param = ref(route.path)
+
 const devs = ref({})
+
 const getNavigation = async () => {
   if(!window.location.href.includes('/login'))
     try {
@@ -73,6 +75,12 @@ const getNavigation = async () => {
         } 
         navigation.value[k]['head'] = dStr
       })
+      try {
+        console.log(JSON.parse(localStorage.getItem("menu")))
+        devs.value = JSON.parse(localStorage.getItem("menu"))
+      } catch (e) {
+        console.log(e)
+      }
     } catch (error) {
       if(error?.response?.data?.type === "authentication_failed" || error?.response?.data?.code?.code === "token_not_valid" || error?.response?.data?.type === "not_authenticated") {
         initRouter.push({name: 'Login'})
@@ -81,9 +89,8 @@ const getNavigation = async () => {
 } 
 
 const openMenu = ($) => {
-  console.log(2, $)
   devs.value[$] = !devs.value[$]
-  console.log(devs.value)
+  localStorage.setItem("menu", JSON.stringify(devs.value))
 }
 
 const getResources = async () => {
@@ -109,8 +116,20 @@ onBeforeMount(() => {
 }
 .devd {
   font-weight: bold;
-  padding: 5px 5px 5px;
-  background: #ccc;
+  padding: 10px 5px 10px;
+  background: #deeeee;
   text-align: center;
+}
+.v-list-item--active {
+  background-color: #ebf1f2 !important;
+}
+.v-toolbar__content {
+  height: 48px !important;
+}
+.v-navigation-drawer--left {
+  top: 40px !important;
+}
+header {
+  box-shadow: rgba(149, 157, 165, 0.3) 0px 8px 24px !important;
 }
 </style>
