@@ -76,8 +76,9 @@ const getNavigation = async () => {
         navigation.value[k]['head'] = dStr
       })
       try {
-        console.log(JSON.parse(localStorage.getItem("menu")))
-        devs.value = JSON.parse(localStorage.getItem("menu"))
+        let menu = JSON.parse(localStorage.getItem("menu"))
+        if(menu)
+          devs.value = menu
       } catch (e) {
         console.log(e)
       }
