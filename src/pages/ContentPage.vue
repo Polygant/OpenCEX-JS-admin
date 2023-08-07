@@ -238,7 +238,6 @@
       </template>      
       <v-data-table        
         v-else
-        :loading="true"
         :headers="headerShow"
         :items="data.results"
         :hide-default-header="true"
@@ -377,7 +376,8 @@
 
   onClickOutside(filterBtn, (event) => {
     customizeFields.value = false
-    filterShow.value = false
+    if (!document.querySelector('.v-overlay-container').contains(event.target))
+      filterShow.value = false
   })
 
   const nav = useNavStore()
