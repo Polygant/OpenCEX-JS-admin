@@ -376,7 +376,8 @@
 
   onClickOutside(filterBtn, (event) => {
     customizeFields.value = false
-    if (document.querySelector('.v-overlay-container')?.contains(event.target))
+
+    if (!document.querySelector('.v-overlay-container')?.contains(event.target))
       filterShow.value = false
   })
 
