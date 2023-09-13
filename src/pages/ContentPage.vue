@@ -238,7 +238,6 @@
       </template>      
       <v-data-table        
         v-else
-        :loading="true"
         :headers="headerShow"
         :items="data.results"
         :hide-default-header="true"
@@ -333,7 +332,7 @@
       <div class="text-center">
         <v-pagination
           v-model="pageNum"
-          :length="pageCount > 1 && pageCount < 2 ? pageCount + 1 : pageCount"
+          :length="pageCount"
         ></v-pagination>
       </div>
     </div>
@@ -377,7 +376,9 @@
 
   onClickOutside(filterBtn, (event) => {
     customizeFields.value = false
-    filterShow.value = false
+
+    if (!document.querySelector('.v-overlay-container')?.contains(event.target))
+      filterShow.value = false
   })
 
   const nav = useNavStore()
@@ -671,10 +672,7 @@
         Object.keys(filters.value).map($ => filters.value[$]['on'] = "")
         const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
         data.value = response.data
-        pageCount.value = response.data.count / 10
-        if(response.data.count > 10 && response.data.count < 20) {
-          response.data.count = 2
-        }
+        pageCount.value = Math.ceil(response.data.count / 10)
         headers.value = normFields(info.value.list_fields)
         const customizeFromString = localStorage.getItem('customize')
         if(customizeFromString.length > 3) {
@@ -720,7 +718,7 @@
       try {
         const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=10&offset=${(pageNum.value - 1) * 10}${filterStr.value}&search=${search.value}`);
         data.value = response.data
-        pageCount.value = response.data.count / 10
+        pageCount.value = Math.ceil(response.data.count / 10)
         tableLoading.value = false
       } catch (error) {      
         showAlert(error)
