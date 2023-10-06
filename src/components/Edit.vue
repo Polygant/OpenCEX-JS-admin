@@ -5,7 +5,7 @@
   <div v-else-if="type === 'auth_group_list'" class="p-8" style="min-width: 50vw;">
     <UserGroups :id="props.data.data.id" />
   </div>
-  <div v-else-if="props.type === 'admin_rest_exchangeuser_list'" class="p-5">
+  <div v-else-if="props.type === 'admin_api_exchangeuser'" class="p-5">
     <v-btn class="mb-3 mr-2" color="primary" variant="tonal" @click="() => { openEditBlock = true; openEditCoreBlock = false; }">Edit Main Profile</v-btn>
     <v-btn class="mb-3" color="primary" variant="tonal" @click="() => { openEditBlock = false; openEditCoreBlock = true; }">Edit Full Profile</v-btn>
     <div v-if="openEditBlock">
@@ -331,7 +331,7 @@
     Object.keys(props.data.list_fields).forEach((field) => {
       values.value[field] = props.data.data[field];
     });
-    if(props.type === 'auth_user_list')
+    if(props.type === 'admin_api_exchangeuser')
       getData()
   
   });
