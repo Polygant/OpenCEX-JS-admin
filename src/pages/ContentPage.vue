@@ -262,7 +262,7 @@
               <img width="100" :src="item.columns[i.key]" />
             </div>
             <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-              {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '-' }}
+              {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:mm:ss') : '-' }}
             </template>
             <template v-else-if="info.list_fields[i.key]?.source === 'two_fa'">
               <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">

@@ -13,7 +13,7 @@
           {{ item.columns[i.key]?.value  }}
         </div>
         <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-          {{ item.columns[i.key] !== null ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:MM:ss') : '' }}
+          {{ item.columns[i.key] !== null ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:mm:ss') : '' }}
         </template>
         <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
           {{ getChooseValue(i.key, item.columns[i.key]) }}
