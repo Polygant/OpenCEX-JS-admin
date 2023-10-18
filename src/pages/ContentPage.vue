@@ -832,7 +832,7 @@
     return true
   })
 
-  const auth_user_list = ["email", "is_staff", "is_superuser", "kyc", "kyc_reject_type", "withdrawals_count", "orders_count"]
+  const admin_rest_exchangeuser_list = ["email", "is_staff", "is_superuser", "kyc", "kyc_reject_type", "withdrawals_count", "orders_count"]
   const core_userkyc_list = ["forced_approve"]
   const core_pairsettings_list = ["pair"]
   const admin_rest_withdrawalrequest_list = ["blockchain", "amount", "details", "sci_gate", "txid", "is_freezed"]
@@ -841,7 +841,7 @@
   const ifFieldCanEdit = (key) => {
     if(key === 'id') return false
     if(editingKey.value !== key) return false
-    if(param.value === "auth_user_list") return !auth_user_list.includes(key)
+    if(param.value === "admin_rest_exchangeuser_list") return !admin_rest_exchangeuser_list.includes(key)
     if(param.value === "core_userkyc_list") return core_userkyc_list.includes(key)
     if(param.value === "core_pairsettings_list") return !core_pairsettings_list.includes(key)
     if(param.value === "admin_rest_withdrawalrequest_list") return !admin_rest_withdrawalrequest_list.includes(key)

@@ -369,8 +369,8 @@ onMounted(() => {
       values.value[field] = props.data.data[field];
     });
     getData()
-    fetchPairs()
   }
+  fetchPairs()
 
 });
 
