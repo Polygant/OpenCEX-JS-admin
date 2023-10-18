@@ -1,5 +1,6 @@
 <template>
 	<v-data-table
+    class="table-block"
 		:headers="headers"
 		:items="data.results"
 		:hide-default-header="true"
@@ -7,21 +8,22 @@
 		disable-pagination    
 	>
     <template v-slot:item="{ item }">
-		<tr>
-      <td v-for="i in headers">
-        <div v-if="i.key === 'user' && typeof item.columns[i.key] === 'object'" class="content-page-table__cell">
-          {{ item.columns[i.key]?.value  }}
-        </div>
-        <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-          {{ item.columns[i.key] !== null ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:mm:ss') : '' }}
-        </template>
-        <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
-          {{ getChooseValue(i.key, item.columns[i.key]) }}
-        </template>
-        <div v-else class="content-page-table__cell">{{ item.columns[i.key] }}</div>
-      </td>
-    </tr>
-  </template>
+	  	<tr>
+        <td v-for="i in headers" class="table-block__td">
+          <div v-if="i.key === 'user' && typeof item[i.key] === 'object'" class="content-page-table__cell">
+            {{ item[i.key]?.value  }}
+          </div>
+          <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
+            {{ item[i.key] !== null ? moment(item[i.key]).format('DD.MM.YYYY HH:mm:ss') : '' }}
+          </template>
+          <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
+            {{ getChooseValue(i.key, item[i.key]) }}
+          </template>
+          <div v-else class="content-page-table__cell">{{ item[i.key] }}</div>
+        </td>
+      </tr>
+    </template>
+    <template #bottom></template>
   </v-data-table>
 </template>
 
@@ -89,3 +91,18 @@ const getData = async () => {
 }
 
 </script>
+
+<style>
+.table-block {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.table-block th {
+  height: 32px !important;
+}
+
+.table-block__td {
+  height: 32px !important;
+}
+</style>

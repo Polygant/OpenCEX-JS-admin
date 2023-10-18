@@ -15,6 +15,19 @@ const pinia = createPinia()
 const vuetify = createVuetify({
   components,
   directives,
+  theme: {
+    defaultTheme: 'customTheme',
+    themes: {
+      customTheme: {
+        dark: false,
+        colors: {
+          background: 'rgb(250, 250, 250)',
+          primary: '#2196F3',
+          secondary: 'rgb(98, 0, 238)',
+        },
+      }
+    }
+  }
 })
 
 export const app = createApp(App);
