@@ -1,12 +1,10 @@
 <template>
-  <v-card>
-    <v-layout align-start>
-      <SideBar v-if="pageName !=='Login'" />
-      <v-main style="min-height: 100vh; min-width: calc(100vw - 280px);" :class="{'login': pageName === 'Login'}">
-        <router-view/>
-      </v-main>
-    </v-layout>
-  </v-card>
+  <v-app>
+    <SideBar v-if="pageName !=='Login'" />
+    <v-main style="min-height: 100vh; min-width: calc(100vw - 280px);" :class="{'login': pageName === 'Login'}">
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 <script>
 import { onBeforeMount, ref, watch } from 'vue';
@@ -42,15 +40,3 @@ export default {
 
 
 </script>
-
-<style scoped>
-.v-main {
-  min-width: 100vw !important;
-  padding-left: 258px !important;
-  padding-right: 30px !important;  
- 
-}
-.v-main.login {
-  background: #3B485A;
-}
-</style>

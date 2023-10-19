@@ -1,9 +1,13 @@
 <template>
   <v-text-field 
+    variant="underlined"
+    color="primary"
     :label="'Group Name'"
     v-model="groupName"
   ></v-text-field> 
   <v-autocomplete
+    variant="underlined"
+    color="primary"
     chips
     label="Users"
     clearable
@@ -14,8 +18,8 @@
     multiple
     @update:search="fetchUsers"
   ></v-autocomplete>
-  <v-btn color="primary" variant="tonal" @click="createGroup()">Save</v-btn>
-  <div class="grid grid-cols-2 gap-8">
+  <v-btn color="primary" variant="flat" @click="createGroup()">Save</v-btn>
+  <div class="grid grid-cols-2 gap-8 mt-5">
     <v-card>
       <template v-slot:title>
         Available models
@@ -36,18 +40,22 @@
           <span>{{ i }}</span>
           <div class="flex">
             <v-checkbox
+              color="primary"
               :label="'View'"
               v-model="permissions[i].view"               
             ></v-checkbox>
             <v-checkbox
+              color="primary"
               :label="'Add'"
               v-model="permissions[i].add"
             ></v-checkbox>
             <v-checkbox
+              color="primary"
               :label="'Change'"
               v-model="permissions[i].change"
             ></v-checkbox>
             <v-checkbox
+              color="primary"
               :label="'Delete'"
               v-model="permissions[i].delete"
             ></v-checkbox>
