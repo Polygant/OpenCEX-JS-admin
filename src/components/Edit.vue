@@ -16,6 +16,7 @@
           </template>
           <template v-else-if="props.data.list_fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="props.data.list_fields[field].attributes.label"
               v-model="values[field]"
             ></v-checkbox>
@@ -23,6 +24,8 @@
           <template v-else-if="props.data.list_fields[field].type === 'choice'">
             <label>{{ props.data.list_fields[field]?.attributes.label }}</label>
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="props.data.list_fields[field]?.attributes.choices"
@@ -35,14 +38,19 @@
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="props.data.list_fields[field].attributes.label"
               v-model="values[field]"
               :hint="props.data.list_fields[field].attributes.hint"
             ></v-text-field>
           </template>
         </div>
-        <v-btn color="primary" block @click="save" variant="tonal">Save</v-btn>
-        <v-btn color="primary" variant="tonal" @click="openEditBlock = false">Close</v-btn>
+        
+        <div class="grid grid-cols-2 gap-5">
+          <v-btn color="rgba(0, 0, 0, 0.52)" variant="outlined" @click="openEditBlock = false">Close</v-btn>
+          <v-btn color="primary" variant="flat" @click="save">Save</v-btn>
+        </div>
       </div>
     </div>
     <div v-if="openEditCoreBlock">
@@ -53,6 +61,7 @@
           </template>
           <template v-else-if="info.list_fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="info.list_fields[field].attributes.label"
               v-model="valuesCore[field]"
             ></v-checkbox>
@@ -60,6 +69,8 @@
           <template v-else-if="info.list_fields[field].type === 'choice'">
             <label>{{ info.list_fields[field].attributes.label }}</label>
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="info.list_fields[field].attributes.choices"
@@ -72,14 +83,18 @@
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="info.list_fields[field].attributes.label"
               v-model="valuesCore[field]"
               :hint="info.list_fields[field].attributes.hint"
             ></v-text-field>
           </template>
         </div>
-        <v-btn color="primary" block @click="saveCore" variant="tonal">Save</v-btn>
-        <v-btn color="primary" variant="tonal" @click="openEditCoreBlock = false">Close</v-btn>
+        <div class="grid grid-cols-2 gap-5">
+          <v-btn color="rgba(0, 0, 0, 0.52)" variant="outlined" @click="openEditCoreBlock = false">Close</v-btn>
+          <v-btn color="primary" variant="flat" @click="saveCore">Save</v-btn>
+        </div>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-8 mb-8">    
@@ -177,6 +192,7 @@
       </template>
       <template v-else-if="props.data.fields[field].type === 'boolean'">
         <v-checkbox
+          color="primary"
           :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
         ></v-checkbox>
@@ -184,6 +200,8 @@
       <template v-else-if="props.data.fields[field].type === 'choice'">
         <label>{{ props.data.fields[field].attributes.label }}</label>
         <v-select
+          variant="underlined"
+          color="primary"
           item-title="text"
           item-value="value"
           :items="props.data.fields[field].attributes.choices"
@@ -196,13 +214,20 @@
       </template>
       <template v-else>
         <v-text-field 
+          variant="underlined"
+          color="primary"
           :label="props.data.fields[field].attributes.label"
           v-model="values[field]"
           :hint="props.data.fields[field].attributes.hint"
         ></v-text-field>
       </template>
     </div>
-    <v-btn color="primary" block variant="tonal" @click="save">Save</v-btn>
+    
+        
+    <div class="grid grid-cols-2 gap-5">
+      <v-btn color="rgba(0, 0, 0, 0.52)" variant="outlined" @click="emit('close')">Close</v-btn>
+      <v-btn color="primary" variant="flat" @click="save">Save</v-btn>
+    </div>
   </div>
   <v-alert
       class="alert-block"
@@ -217,7 +242,7 @@
   </v-alert>
   </template>
   <script setup>
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, defineEmits } from 'vue';
   import { useRoute } from 'vue-router'
   import localConfig from "@/local_config"
   import axios from '../plugins/axios'
@@ -231,6 +256,8 @@
   const headers = ref([])
   const info = ref([])
   const dataC = ref([])
+  
+  const emit = defineEmits(['close'])
   
   const props = defineProps({
     data: {

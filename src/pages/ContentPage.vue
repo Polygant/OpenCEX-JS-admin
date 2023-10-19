@@ -1,8 +1,10 @@
 <template>  
   <div class="breadcrumbs">
-    <div class="breadcrumbs__link" @click="router.push({path: `/${baseUrl}/dashboard`})">Home</div>
-     /
+    <router-link class="breadcrumbs__link" to="/page/dashboard">Home</router-link>
+    <span class="ml-2 mr-3">/</span>
+    <template  v-if="param !== 'dashboard'">
     {{ info.name }}
+    </template>
   </div>
   <v-dialog
     v-model="infoDialog"
@@ -10,9 +12,9 @@
   >
     <v-card prepend-icon="mdi-home">
       <Show :data="showData" />
-      <v-card-actions>
-        <v-btn color="primary" variant="tonal" @click="infoDialog = false">Close</v-btn>
-      </v-card-actions>
+      <div class="flex justify-center mb-6">
+        <v-btn color="rgba(0, 0, 0, 0.52)" variant="outlined" @click="infoDialog = false">Close</v-btn>
+      </div>
     </v-card>
   </v-dialog>
   
@@ -21,10 +23,7 @@
     width="auto"
   >
     <v-card prepend-icon="mdi-home">
-      <Edit :data="showData" :type="param" />
-      <v-card-actions>
-        <v-btn color="primary" variant="tonal" @click="editDialog = false">Close</v-btn>
-      </v-card-actions>
+      <Edit :data="showData" :type="param" @close="editDialog = false" />
     </v-card>
   </v-dialog>
   
@@ -36,10 +35,7 @@
       <v-card-title class="text-h5">
         Create
       </v-card-title>
-      <Create :data="showData" :type="param" />
-      <v-card-actions>
-        <v-btn color="primary" block variant="tonal" @click="createDialog = false">Close</v-btn>
-      </v-card-actions>
+      <Create :data="showData" :type="param" @close="createDialog = false"/>
     </v-card>
   </v-dialog>
   
@@ -53,6 +49,8 @@
         <div v-for="field in act.fields" :key="field.name">
           <div class="flex" v-if="field.type === 'integer'">
             <v-text-field
+              variant="underlined"
+              color="secondary"
               type="number"
               v-model="actFields[field.name].value"
               :label="actFields[field.name].label"
@@ -68,6 +66,8 @@
           </div>
           <div class="flex" v-else>
             <v-text-field 
+              variant="underlined"
+              color="secondary"
               v-model="actFields[field.name].value"
               :label="actFields[field.name].label"
             ></v-text-field>
@@ -75,8 +75,8 @@
         </div>
       </div>
       <v-card-actions class="flex-wrap">
-        <v-btn color="primary" variant="tonal" @click="submitAct()">Do</v-btn>
-        <v-btn color="primary" variant="tonal" @click="actDialog = false">Close</v-btn>
+        <v-btn color="primary" variant="flat" @click="submitAct()">Do</v-btn>
+        <v-btn color="primary" variant="flat" @click="actDialog = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -91,6 +91,8 @@
         <div v-for="field in actGlobal.fields" :key="field.name">
           <div class="flex" v-if="field.type === 'integer'">
             <v-text-field
+              variant="underlined"
+              color="secondary"
               type="number"
               :label="actGlobalFields[field.name].label"
               v-model="actGlobalFields[field.name].value"
@@ -106,6 +108,8 @@
           </div>
           <div class="flex" v-else>
             <v-text-field 
+              variant="underlined"
+              color="secondary"
               :label="actGlobalFields[field.name].label"
               v-model="actGlobalFields[field.name].value"
             ></v-text-field>
@@ -113,8 +117,8 @@
         </div>
       </div>
       <v-card-actions class="flex-wrap">
-        <v-btn color="primary" variant="tonal" @click="submitGlobalAct()">Do</v-btn>
-        <v-btn color="primary" variant="tonal" @click="actGlobalDialog = false">Close</v-btn>
+        <v-btn color="primary" variant="flat" @click="submitGlobalAct()">Do</v-btn>
+        <v-btn color="primary" variant="flat" @click="actGlobalDialog = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -127,8 +131,8 @@
       <div class="p-8">
         Are you shure to delete this?
         <v-card-actions class="flex-wrap">
-          <v-btn color="primary" variant="tonal" @click="deleteItem">Yes</v-btn><br/>
-          <v-btn color="primary" variant="tonal" @click="deleteDialog = false">Close</v-btn>
+          <v-btn color="primary" variant="flat" @click="deleteItem">Yes</v-btn><br/>
+          <v-btn color="primary" variant="flat" @click="deleteDialog = false">Close</v-btn>
         </v-card-actions>
       </div>
     </v-card>
@@ -136,13 +140,16 @@
   <div v-if="param === 'dashboard'">
     <Dashboard />
   </div>
-  <template v-else >
+  <v-card v-else class="mx-8 pb-3 overflow-visible" variant="elevated">
+    <card-heading :title="info.name" color="rgb(var(--v-theme-primary))" :icon="currentIcon || 'mdi-view-grid'" />
     <div class="grid grid-cols-2 gap-8" style="align-items: center; padding-left: 20px;">
       <div class="flex">
         <v-text-field
           v-model="search"
           variant="underlined"
-          append-icon="mdi-magnify"
+          color="secondary"
+          clearable
+          prepend-icon="mdi-magnify"
           label="Search"
           class="content-page__search"
         >
@@ -151,13 +158,14 @@
           <div class="customize-fields" v-if="customizeFields">
             <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
               <v-checkbox
+                color="secondary"
                 v-if="item !== 'controls' && item !== 'actions' "
                 :label="item"
                 v-model="headersCustom[param][item]"
               ></v-checkbox>
             </div>
           </div>
-          <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
+          <v-btn color="secondary" variant="text" class="inline-block ml-8" @click="customizeFields = !customizeFields">Customize fields</v-btn>
         </div> 
       </div>
       <div class="flex justify-end p-8">    
@@ -166,50 +174,59 @@
             <div v-if="filterShow" class="filters-block">
               <div v-for="filter in Object.keys(filters)" :key="filter">
                 <template v-if="filters[filter].type !== 'datetime'">
-                  <label>{{ filters[filter].attributes.label }}</label>
                   <div class="flex" v-if="filters[filter].type === 'integer'">
                     <v-text-field
+                      variant="underlined"
+                      color="primary"
                       type="number"
+                      :label="filters[filter].attributes.label"
                       v-model="filters[filter].on"
                     ></v-text-field>
                     <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
                   </div>      
                   <div class="flex" v-else-if="filters[filter].type === 'choice'">
                     <v-select
+                      variant="underlined"
+                      color="primary"
                       item-title="text"
                       item-value="value"
                       v-model="filters[filter].on"
+                      :label="filters[filter].attributes.label"
                       :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
                     ></v-select>
                     <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
                   </div>
                   <div class="flex" v-else-if="filters[filter].type === 'boolean'">
                     <v-switch
+                      variant="underlined"
+                      color="primary"
                       v-model="filters[filter].on"
+                      :label="filters[filter].attributes.label"
                       hide-details
-                      inset
                     ></v-switch>
                     <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
                   </div>
                   <div class="flex" v-else>
-                    {{ filters[filter].type }}
                     <v-text-field 
+                      variant="underlined"
+                      color="secondary"
+                      :label="filters[filter].type"
                       v-model="filters[filter].on"
                     ></v-text-field>
                     <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
                   </div>
                 </template>
               </div>
-              <v-btn color="primary" block variant="tonal" @click="clearFilter">Clear filter</v-btn>
+              <v-btn color="primary" block variant="flat" @click="clearFilter">Clear filter</v-btn>
             </div> 
-            <v-btn @click="() => filterShow = !filterShow" variant="tonal" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
+            <v-btn color="secondary" @click="() => filterShow = !filterShow" variant="text" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
               Add filter
             </v-btn>
-            <v-btn class="content-page__btn" prepend-icon="mdi-plus" variant="tonal" @click="getCreateData">
+            <v-btn color="secondary" class="content-page__btn" prepend-icon="mdi-plus" variant="text" @click="getCreateData">
               Create
             </v-btn>
           </div>
-          <!-- <v-btn class="content-page__btn" variant="tonal" prepend-icon="mdi-download">
+          <!-- <v-btn class="content-page__btn" variant="flat" prepend-icon="mdi-download">
             Export
           </v-btn> -->
         </div>
@@ -217,17 +234,17 @@
     </div>
     <div v-if="info?.global_actions?.length > 0 || (info?.actions?.length > 0 && showActs)" class="flex actions-line">
       <div v-for="act in info.global_actions" class="mr-4">
-        <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
+        <v-btn color="primary" variant="flat" class="inline-block ml-8" @click="doGlobalAct(act)">{{ act.name }}</v-btn>
       </div> 
       <div v-for="act in info.actions" class="mr-4">
-        <v-btn color="primary" variant="tonal" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
+        <v-btn color="primary" variant="flat" class="inline-block ml-8" @click="doAct(act)">{{ act.name }}</v-btn>
       </div>  
     </div>    
     <div class="flex justify-center" v-if="tableLoading">
       <v-progress-circular
           :size="70"
           :width="7"
-          color="purple"
+          color="secondary"
           indeterminate
         ></v-progress-circular>
     </div>  
@@ -242,101 +259,105 @@
         :items="data.results"
         :hide-default-header="true"
         :hide-default-footer="true"
-        disable-pagination    
       >
       <template v-slot:item="{ item }">
         <tr>
-          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}" @click="() => selectEditField(item.columns.id, i.key)">
+          <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}" @click="() => selectEditField(item.id, i.key)">
             <div v-if="i.key === 'links'">
-              <div v-for="it in getObj(item.columns[i.key])">
+              <div v-for="it in getObj(item[i.key])">
                 {{ it.href }} - {{ it.title }}
               </div>
-            </div>
-            <div v-else-if="i.key === 'control'">
-              <input type="checkbox" v-model="selected[item.columns['id']]" />
-            </div>
-            <div v-else-if="i.key === 'user' && typeof item.columns[i.key] === 'object'" class="content-page-table__cell">
-              {{ item.columns[i.key]?.value  }}
-            </div>
-            <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
-              <img width="100" :src="item.columns[i.key]" />
-            </div>
-            <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
-              {{ item.columns[i.key] ? moment(item.columns[i.key]).format('DD.MM.YYYY HH:mm:ss') : '-' }}
-            </template>
-            <template v-else-if="info.list_fields[i.key]?.source === 'two_fa'">
-              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
-                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" @input="updateBoolStringValue" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
-                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+              <div v-else-if="i.key === 'control'">
+                <input type="checkbox" v-model="selected[item['id']]" />
               </div>
-              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
-                {{ item.columns[i.key] }}
+              <div v-else-if="i.key === 'user' && typeof item[i.key] === 'object'" class="content-page-table__cell">
+                {{ item[i.key]?.value  }}
               </div>
-            </template>
-            <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
-              {{ getChooseValue(i.key, item.columns[i.key]) }}              
-            </template>
-            <template v-else-if="info.list_fields[i.key]?.source === 'pair'">
-              {{ item.columns[i.key].value }}
-            </template>
-            <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
-              <div v-if="info?.actions?.length > 0" style="margin-right: 10px; margin-top: 28px;">
-                <v-select
-                  :items="actions"
-                  label="Action"
-                  style="min-width: 200px;"
-                >
-                  <template v-slot:selection="d">
-                      Select action
-                  </template>
-                  <template v-slot:item="d">
-                    <v-list-item @click="doActWithId(d.item.raw.value, item.columns['id'])">
-                      <v-list-item-title>{{ d.item.raw.text }}</v-list-item-title>
-                    </v-list-item>
-                  </template>
-                </v-select>
+              <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
+                <img width="100" :src="item[i.key]" />
               </div>
-              <div class="action-icons">
-                <v-icon v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item.columns['id'])" icon="mdi-eye"></v-icon>
-                <v-icon v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item.columns['id'])" icon="mdi-pencil"></v-icon>
-                <v-icon v-if="haveIcon('create')" :color="'#67AD5B'" icon="mdi-content-duplicate"></v-icon>
-                <v-icon v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item.columns['id'])" icon="mdi-delete"></v-icon>
+              <template v-else-if="info.list_fields[i.key]?.type === 'datetime'">
+                {{ item[i.key] ? moment(item[i.key]).format('DD.MM.YYYY HH:mm:ss') : '-' }}
+              </template>
+              <template v-else-if="info.list_fields[i.key]?.source === 'two_fa'">
+                <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.id" ref="target">
+                  <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" @input="updateBoolStringValue" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                  <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                  <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+                </div>
+                <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.id">
+                  {{ item[i.key] }}
+                </div>
+              </template>
+              <template v-else-if="info.list_fields[i.key]?.type === 'choice'">
+                {{ getChooseValue(i.key, item[i.key]) }}              
+              </template>
+              <template v-else-if="info.list_fields[i.key]?.source === 'pair'">
+                {{ item[i.key].value }}
+              </template>
+              <div v-else-if="i.key === 'actions'" class="action-cell content-page-table__cell">
+                <div class="action-icons">
+                  <v-menu v-if="info?.actions?.length > 0">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        size="small"
+                        color="primary"
+                        variant="text"
+                        v-bind="props"
+                      >
+                        Action
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item
+                        v-for="(action, index) in actions"
+                        :key="index"
+                        @click="doActWithId(action.value, item.id)"
+                      >
+                        <v-list-item-title>{{ action.text }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                  <v-btn density="comfortable" variant="text" v-if="haveIcon('show')" :color="'#4994EC'" @click="getDetailData(item['id'])" icon="mdi-eye"></v-btn>
+                  <v-btn density="comfortable" variant="text" v-if="haveIcon('edit')" :color="'#4994EC'" @click="getEditData(item['id'])" icon="mdi-pencil"></v-btn>
+                  <v-btn density="comfortable" variant="text" v-if="haveIcon('delete')" :color="'#E15241'" @click="deleteItemDialog(item['id'])" icon="mdi-delete"></v-btn>
+                </div>
               </div>
-            </div>
-            <template v-else-if="info.list_fields[i.key]?.type === 'boolean'">
-              <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id">
-                <!-- <input class="edit-input" v-model="editingFields[i.key]" type="checkbox" /> -->
-                <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
-                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
-              </div>
-              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
-                {{ item.columns[i.key] }}
-              </div>
-            </template>
-            <div v-else class="content-page-table__cell" v-click-out-side="cancelLifeSaving">
-              <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.columns.id" ref="target">
-                <input class="edit-input" v-model="editingFields[i.key]" />
-                <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
-                <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
-              </div>
-              <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.columns.id">
-                {{ item.columns[i.key] }}
-              </div>
-            </div>            
-          </td>
-        </tr>
-      </template>
+              <template v-else-if="info.list_fields[i.key]?.type === 'boolean'">
+                <div class="content-page-table__cell-edit relative pl-8" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.id">
+                  <!-- <input class="edit-input" v-model="editingFields[i.key]" type="checkbox" /> -->
+                  <v-checkbox class="inline-block absolute top-0 left-0 -mt-4" label-position="right" v-model="editingFields[i.key]" label=" "></v-checkbox>
+                  <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                  <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+                </div>
+                <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.id">
+                  {{ item[i.key] }}
+                </div>
+              </template>
+              <div v-else class="content-page-table__cell" v-click-out-side="cancelLifeSaving">
+                <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.id" ref="target">
+                  <input class="edit-input" v-model="editingFields[i.key]" />
+                  <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
+                  <!-- <v-icon :color="'#E15241'" @click.stop="() => cancelLifeSaving()" icon="mdi-cancel"></v-icon> -->
+                </div>
+                <div class="content-page-table__cell-value" v-if="!ifFieldCanEdit(i.key) || !isPageEditable || editionId !== item.id">
+                  {{ item[i.key] }}
+                </div>
+              </div>            
+            </td>
+          </tr>
+        </template>
+        <template #bottom></template>
       </v-data-table>
       <div class="text-center">
         <v-pagination
           v-model="pageNum"
           :length="pageCount"
+          size="small"
         ></v-pagination>
       </div>
     </div>
-  </template>
+</v-card>
   <v-alert
       class="alert-block"
       v-if="alert"
@@ -365,6 +386,7 @@
   import moment from 'moment'
   import Dashboard from '@/components/Dashboard.vue'
   import { onClickOutside } from '@vueuse/core'
+  import CardHeading from "@/components/CardHeading.vue"
 
   const target = ref(null)
   const filterBtn = ref(null)
@@ -897,12 +919,23 @@
     deleteItemId.value = id
     deleteDialog.value = true
   }
+
+  const currentIcon = computed(() => nav.getNavigation?.find(navEl => navEl?.link?.name === route.params.page)?.icon || null)
   
   </script>
+
+<style>
+.v-list-item-title {
+  font-size: 14px !important;
+}
+.v-list-item__spacer {
+  width: 16px !important;
+}
+</style>
   
 <style scoped>
 .content-page-table {
-  overflow-x: scroll;
+  overflow-x: auto;
   font-size: 11px;
 }
 
@@ -939,11 +972,13 @@
 }
 .breadcrumbs {
   padding: 20px;
+  color: rgba(0, 0, 0, 0.38);
   display: flex;
+  background: white;
+  margin-bottom: 50px;
 }
 .breadcrumbs__link {
-  color: #5C92E5;
-  border-bottom: 1px solid #5C92E5;
+  color: rgb(var(--v-theme-primary));
   cursor: pointer;
   display: block;
   margin-right: 6px;
@@ -954,6 +989,7 @@
 .v-data-table-footer {
   display: none;
 }
+
 .filters-block {
   position: absolute;
   background: #FFF;
@@ -976,7 +1012,6 @@
 }
 .actions-line {
   padding: 20px;
-  background: #CCC;
   margin-top: 10px;
 }
 .alert-block {
@@ -993,5 +1028,6 @@
   display: flex;
   align-items: center;
   min-width: 100px;
+  gap: 5px;
 }
 </style>
