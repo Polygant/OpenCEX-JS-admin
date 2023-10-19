@@ -8,7 +8,7 @@
 		disable-pagination    
 	>
     <template v-slot:item="{ item }">
-	  	<tr>
+  		<tr>
         <td v-for="i in headers" class="table-block__td">
           <div v-if="i.key === 'user' && typeof item[i.key] === 'object'" class="content-page-table__cell">
             {{ item[i.key]?.value  }}
@@ -23,7 +23,6 @@
         </td>
       </tr>
     </template>
-    <template #bottom></template>
   </v-data-table>
 </template>
 
