@@ -159,8 +159,8 @@
             <div v-for="item in Object.keys(headersCustom[param])" :key="item" style="margin-bottom: -30px;">
               <v-checkbox
                 color="secondary"
-                v-if="item !== 'controls' && item !== 'actions' "
-                :label="item"
+                v-if="item !== 'control' && item !== 'actions'"
+                :label="getHeaderByKey(item)?.title"
                 v-model="headersCustom[param][item]"
               ></v-checkbox>
             </div>
@@ -249,7 +249,7 @@
         ></v-progress-circular>
     </div>  
     <div class="content-page-table relative" v-else>
-      <input type="checkbox" style="position: absolute; top: 20px; left: 15px;" v-model="checkAll" />
+      <input v-if="headersCustom[param].control" type="checkbox" style="position: absolute; top: 20px; left: 15px;" v-model="checkAll" />
       <template v-if="!data.results || data.results.length === 0">
         <div class="text-center">No data available</div>
       </template>      
@@ -398,10 +398,13 @@
   })
 
   onClickOutside(filterBtn, (event) => {
-    customizeFields.value = false
+    if (!document.querySelector('.customize-fields')?.contains(event.target)) {
+      customizeFields.value = false
+    }
 
-    if (!document.querySelector('.v-overlay-container')?.contains(event.target))
+    if (!document.querySelector('.v-overlay-container')?.contains(event.target)) {
       filterShow.value = false
+    }
   })
 
   const nav = useNavStore()
@@ -492,6 +495,7 @@
         getData(newValue)
         alert.value = false
         alertText.value = ''
+        search.value = ''
     }  
   )
   watch(search, _.debounce((newVal) => {
@@ -547,16 +551,8 @@
     })
     actDialog.value = true
   }
-  
-  const doGlobalActWithId = async (actObj, id) => {
-    selected.value = {}
-    selected.value[id] = true
-    actGlobal.value = actObj
-    actGlobal.value.fields.map($ => {
-      actGlobalFields.value[$.name] = $
-    })
-    actGlobalDialog.value = true
-  }
+
+  const getHeaderByKey = key => headers.value.find(header => header.key === key)
   
   const submitAct = async () => {
     let ids = []
@@ -1004,10 +1000,10 @@
 .customize-fields {
   position: absolute;
   background: #FFF;
-  padding: 20px;
+  padding: 40px 20px 20px;
   left: 32px;
   top: 45px;
-  min-width: 200px;
+  min-width: 238px;
   z-index: 2;
   border: 1px solid #ccc;
 }
