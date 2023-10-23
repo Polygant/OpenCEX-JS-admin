@@ -263,9 +263,10 @@
       <template v-slot:item="{ item }">
         <tr>
           <td v-for="i in headerShow" :class="{'checks' : i.key === 'control'}" @click="() => selectEditField(item.id, i.key)">
-            <div v-if="i.key === 'links'">
-              <div v-for="it in getObj(item[i.key])">
-                {{ it.href }} - {{ it.title }}
+              <div v-if="i.key === 'links'">
+                <div v-for="it in getObj(item[i.key])">
+                  {{ it.href }} - {{ it.title }}
+                </div>
               </div>
               <div v-else-if="i.key === 'control'">
                 <input type="checkbox" v-model="selected[item['id']]" />
@@ -696,7 +697,7 @@
         data.value = response.data
         pageCount.value = Math.ceil(response.data.count / 10)
         headers.value = normFields(info.value.list_fields)
-        const customizeFromString = localStorage.getItem('customize')
+        const customizeFromString = localStorage.getItem('customize') || '{}'
         if(customizeFromString.length > 3) {
           const customizeFrom = JSON.parse(customizeFromString)
           if(Object.keys(customizeFrom).length === 0) {
