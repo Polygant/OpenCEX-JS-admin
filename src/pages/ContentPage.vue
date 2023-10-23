@@ -693,7 +693,7 @@
         data.value = response.data
         pageCount.value = Math.ceil(response.data.count / 10)
         headers.value = normFields(info.value.list_fields)
-        const customizeFromString = localStorage.getItem('customize')
+        const customizeFromString = localStorage.getItem('customize') || '{}'
         if(customizeFromString.length > 3) {
           const customizeFrom = JSON.parse(customizeFromString)
           if(Object.keys(customizeFrom).length === 0) {
