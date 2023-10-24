@@ -271,7 +271,7 @@
               <div v-else-if="i.key === 'control'">
                 <input type="checkbox" v-model="selected[item['id']]" />
               </div>
-              <div v-else-if="i.key === 'user' && item[i.key] === 'object'" class="content-page-table__cell">
+              <div v-else-if="i.key === 'user' && typeof item[i.key] === 'object'" class="content-page-table__cell">
                 <router-link
                   class="text-blue"
                   :to="{ 
