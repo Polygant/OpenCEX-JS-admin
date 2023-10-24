@@ -271,8 +271,17 @@
               <div v-else-if="i.key === 'control'">
                 <input type="checkbox" v-model="selected[item['id']]" />
               </div>
-              <div v-else-if="i.key === 'user' && typeof item[i.key] === 'object'" class="content-page-table__cell">
-                {{ item[i.key]?.value  }}
+              <div v-else-if="i.key === 'user' && item[i.key] === 'object'" class="content-page-table__cell">
+                <router-link
+                  class="text-blue"
+                  :to="{ 
+                    name: 'Admin', 
+                    params: { page: 'admin_rest_exchangeuser_list' }, 
+                    query: { edit: item.user.id }
+                  }"
+                >
+                  {{ item.user.value }}
+                </router-link>
               </div>
               <div v-else-if="i.key === 'preview_image' || i.key === 'announce_image' || i.key === 'logo' ">
                 <img width="100" :src="item[i.key]" />
@@ -720,6 +729,10 @@
           localStorage.setItem('customize', JSON.stringify(headersCustom.value))
         }
         tableLoading.value = false
+
+        if (route.query.edit) {
+          getEditData(route.query.edit)
+        }
       } catch (error) {         
         showAlert(error)
         tableLoading.value = false
@@ -790,6 +803,12 @@
         showAlert(error)
       }
   }
+
+  watch(editDialog, (value) => {
+    if (!value) {
+      router.replace({ query: { edit: '' }})
+    }
+  })
 
 ///// Edition in live mode
 
