@@ -23,6 +23,7 @@
         </td>
       </tr>
     </template>
+    <template #bottom></template>
   </v-data-table>
 </template>
 
@@ -31,7 +32,6 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 import localConfig from "@/local_config"
 import { ref, onBeforeMount } from 'vue'
 import _ from 'lodash'
-import { splitAndReplace, endsWithList, removeListSuffix } from "@/plugins/helpers"
 import moment from 'moment'
 import { useNavStore } from '@/stores/nav'
 import axios from '@/plugins/axios'
