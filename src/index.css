@@ -6,19 +6,7 @@
 * {
     font-family: 'Roboto',sans-serif;
 }
-.v-table__wrapper tr td div,
-.v-table__wrapper tr td {
-    font-size: 14px !important;
-    color: rgba(0, 0, 0, 0.87)
-}
 
 body {
-  background: #3B485A;
-}
-
-
-.action-cell .v-input__control .v-field__field .v-field__input,
-.action-cell .v-input__control .v-field__field {
-  height: 35px !important;
-  margin-top: -7px !important;
+  font-size: 14px;
 }

@@ -39,12 +39,15 @@
           </template>
           <template v-else-if="props.data.fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.fields[field].attributes.label === 'Pair'">
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="pairs"
@@ -54,6 +57,8 @@
           </template>
           <template v-else-if="props.data.fields[field].type === 'choice'">
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="props.data.fields[field].attributes.choices"
@@ -62,10 +67,12 @@
             ></v-select>
           </template>
           <template v-else-if="props.data.fields[field].type === 'datetime'">
-            <v-date-picker v-model="values[field]"></v-date-picker>
+            <v-date-picker color="primary" v-model="values[field]"></v-date-picker>
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
               :hint="props.data.fields[field].attributes.hint"
@@ -81,12 +88,15 @@
           <template v-if="props.data.fields[field].attributes.read_only === true"></template>
           <template v-else-if="props.data.fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.fields[field].type === 'choice'">
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="props.data.fields[field].attributes.choices"
@@ -95,10 +105,12 @@
             ></v-select>
           </template>
           <template v-else-if="props.data.fields[field].type === 'datetime'">
-            <v-date-picker v-model="values[field]"></v-date-picker>
+            <v-date-picker color="primary" v-model="values[field]"></v-date-picker>
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
               :hint="props.data.fields[field].attributes.hint"
@@ -114,12 +126,15 @@
           <template v-if="props.data.fields[field].attributes.read_only === true"></template>
           <template v-else-if="props.data.fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.fields[field].type === 'choice'">
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="props.data.fields[field].attributes.choices"
@@ -128,10 +143,12 @@
             ></v-select>
           </template>
           <template v-else-if="props.data.fields[field].type === 'datetime'">
-            <v-date-picker v-model="values[field]"></v-date-picker>
+            <v-date-picker color="primary" v-model="values[field]"></v-date-picker>
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
               :hint="props.data.fields[field].attributes.hint"
@@ -147,12 +164,15 @@
           <template v-if="props.data.fields[field].attributes.read_only === true"></template>
           <template v-else-if="props.data.fields[field].type === 'boolean'">
             <v-checkbox
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
             ></v-checkbox>
           </template>
           <template v-else-if="props.data.fields[field].type === 'choice'">
             <v-select
+              variant="underlined"
+              color="primary"
               item-title="text"
               item-value="value"
               :items="props.data.fields[field].attributes.choices"
@@ -161,10 +181,12 @@
             ></v-select>
           </template>
           <template v-else-if="props.data.fields[field].type === 'datetime'">
-            <v-date-picker v-model="values[field]"></v-date-picker>
+            <v-date-picker color="primary" v-model="values[field]"></v-date-picker>
           </template>
           <template v-else>
             <v-text-field 
+              variant="underlined"
+              color="primary"
               :label="props.data.fields[field].attributes.label"
               v-model="values[field]"
               :hint="props.data.fields[field].attributes.hint"
@@ -176,12 +198,15 @@
   </v-window>
 </v-card-text>
 
-<v-btn color="primary" variant="tonal" block @click="save">Save</v-btn>
+<div class="grid grid-cols-2 gap-5">
+  <v-btn color="rgba(0, 0, 0, 0.52)" variant="outlined" @click="emit('close')">Close</v-btn>
+  <v-btn color="primary" variant="flat" @click="save">Save</v-btn>
+</div>
 
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, defineEmits } from 'vue';
 import { useRoute } from 'vue-router'
 import localConfig from "@/local_config"
 import axios from '../plugins/axios'
@@ -194,6 +219,8 @@ const props = defineProps({
     required: true,
   },
 })
+
+const emit = defineEmits(['close'])
 
 const values = ref({})
 const valuesCore = ref({})
