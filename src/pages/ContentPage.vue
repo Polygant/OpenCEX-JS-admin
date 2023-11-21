@@ -222,7 +222,7 @@
             <v-btn color="secondary" @click="() => filterShow = !filterShow" variant="text" class="content-page__btn" prepend-icon="mdi-filter-variant-plus">
               Add filter
             </v-btn>
-            <v-btn color="secondary" class="content-page__btn" prepend-icon="mdi-plus" variant="text" @click="getCreateData">
+            <v-btn v-if="haveIcon('create')" color="secondary" class="content-page__btn" prepend-icon="mdi-plus" variant="text" @click="getCreateData">
               Create
             </v-btn>
           </div>
@@ -344,7 +344,7 @@
                   {{ item[i.key] }}
                 </div>
               </template>
-              <div v-else class="content-page-table__cell" v-click-out-side="cancelLifeSaving">
+              <div v-else class="content-page-table__cell" v-click-outside="cancelLifeSaving">
                 <div class="content-page-table__cell-edit" v-if="isPageEditable && ifFieldCanEdit(i.key) && editionId === item.id" ref="target">
                   <input class="edit-input" v-model="editingFields[i.key]" />
                   <v-icon :color="'#67AD5B'" @click.stop="() => saveLifeMode()" icon="mdi-content-save"></v-icon>
