@@ -152,6 +152,7 @@
           prepend-icon="mdi-magnify"
           label="Search"
           class="content-page__search"
+          @click:clear="() => search = ''"
         >
         </v-text-field>  
         <div class="relative pt-3" ref="filterBtn">
@@ -192,7 +193,7 @@
                       item-value="value"
                       v-model="filters[filter].on"
                       :label="filters[filter].attributes.label"
-                      :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices]"
+                      :items="[{ value: '', text: 'Not Set' }, ...filters[filter].attributes.choices.map((el) => ({ ...el, value: String(el.value) }))]"
                     ></v-select>
                     <v-icon class="mt-4" :color="'#E15241'" @click="() => filters[filter].on = ''" icon="mdi-close"></v-icon>
                   </div>
@@ -249,7 +250,7 @@
         ></v-progress-circular>
     </div>  
     <div class="content-page-table relative" v-else>
-      <input v-if="headersCustom[param].control" type="checkbox" style="position: absolute; top: 20px; left: 15px;" v-model="checkAll" />
+      <input v-if="headersCustom[param]?.control" type="checkbox" style="position: absolute; top: 20px; left: 15px;" v-model="checkAll" />
       <template v-if="!data.results || data.results.length === 0">
         <div class="text-center">No data available</div>
       </template>      
@@ -482,6 +483,7 @@
   })
 
   onBeforeMount(() => {
+    search.value = route.query.search || ''
     pageNum.value = 1
     pageCount.value = 1
     getData(param.value)
@@ -508,6 +510,15 @@
     }  
   )
   watch(search, _.debounce((newVal) => {
+    if (newVal !== '')
+      router.replace({ query: { ...route.query, search: encodeURIComponent(newVal || '') } })
+    else
+      router.replace({ 
+        query: 
+          Object.fromEntries(
+            Object.entries(route.query)
+            .filter(([key]) => key !== 'search'))
+      })
     getPaginateData(param.value)
   }, 1002))
   
@@ -682,6 +693,27 @@
     })
     return str
   })
+
+  watch(
+    filters, 
+    _.debounce((value) => {
+      if (value)
+        router.replace({ 
+          query: {
+            ...Object.fromEntries(
+              Object.entries(route.query)
+                .filter(([key]) => !key.startsWith('filter.'))
+            ),
+            ...Object.fromEntries(
+              Object.entries(value)
+                .map(([key, val]) => ['filter.' + key, val.on])
+                .filter(([key, val]) => val !== '')
+            )
+          }
+        })
+    }, 1000),
+    { deep: true }
+  )
   
   watch(filterStr, () => {
     getPaginateData(param.value)
@@ -696,9 +728,10 @@
       try {
         const options = await axios.options(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/`);
         info.value = options.data
-        filters.value = options.data.filters      
-        Object.keys(filters.value).map($ => filters.value[$]['on'] = "")
-        const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0`);
+        filters.value = options.data.filters
+        search.value = decodeURIComponent(route.query.search || '')
+        Object.keys(filters.value).forEach(key => filters.value[key].on = route.query['filter.' + key] || "")
+        const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/?limit=${perPage.value}&offset=0&search=${search.value}${filterStr.value}`);
         data.value = response.data
         pageCount.value = Math.ceil(response.data.count / 10)
         headers.value = normFields(info.value.list_fields)
@@ -733,6 +766,8 @@
         if (route.query.edit) {
           getEditData(route.query.edit)
         }
+        if (route.query.show)
+          getDetailData(route.query.show)
       } catch (error) {         
         showAlert(error)
         tableLoading.value = false
@@ -760,8 +795,9 @@
   
   const getDetailData = async (id) => {
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
-    if(endsWithList(param.value)) 
+    if(endsWithList(param.value))
       try {
+        router.replace({ query: { ...route.query, show: String(id) } })
         const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
         showData.value = { 
           list_fields: info.value.list_fields, 
