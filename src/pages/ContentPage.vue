@@ -828,6 +828,7 @@
     let pathSepar = splitAndReplace(removeListSuffix(param.value))
     if(endsWithList(param.value)) 
       try {
+        router.replace({ query: { ...route.query, edit: String(id) } })
         const response = await axios.get(`${apiKey}${pathSepar[0]}/${pathSepar[1]}/${id}/?`);
         showData.value = {
           list_fields: info.value.list_fields, 
@@ -842,7 +843,23 @@
 
   watch(editDialog, (value) => {
     if (!value) {
-      router.replace({ query: { edit: '' }})
+      router.replace({ 
+        query: Object.fromEntries(
+          Object.entries(route.query)
+            .filter(([key]) => key !== 'edit')
+        )
+      })
+    }
+  })
+
+  watch(infoDialog, (value) => {
+    if (!value) {
+      router.replace({ 
+        query: Object.fromEntries(
+          Object.entries(route.query)
+            .filter(([key]) => key !== 'show')
+        )
+      })
     }
   })
 
