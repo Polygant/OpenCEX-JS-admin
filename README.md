@@ -15,7 +15,7 @@ Developed by <a href="https://polygant.net" target="_blank">Polygant</a>.
 <p align="center"><b>Please go to the main repo to install OpenCEX <a href="https://github.com/Polygant/OpenCEX/">https://github.com/Polygant/OpenCEX/</a></b></p>
 
 > [!CAUTION]
-> This repository has not been maintained since **2024**.  
+> This repository is not maintained.  
 > The code is provided as-is.
 
 
